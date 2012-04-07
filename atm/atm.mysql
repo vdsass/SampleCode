@@ -1,0 +1,79 @@
+DROP TABLE IF EXISTS account;
+CREATE TABLE IF NOT EXISTS account (
+       id              INTEGER AUTO_INCREMENT PRIMARY KEY,
+       account_number  INTEGER,
+       balance         DOUBLE
+);
+
+DROP TABLE IF EXISTS customer;
+CREATE TABLE IF NOT EXISTS customer (
+       account   INTEGER,         # References account
+       person    INTEGER,         # References person
+       password  CHAR(13)
+);
+
+DROP TABLE IF EXISTS customers;
+CREATE TABLE IF NOT EXISTS customers (
+       id        INTEGER,
+       person_id INTEGER
+);
+
+DROP TABLE IF EXISTS person;
+CREATE TABLE IF NOT EXISTS person (
+       id         INTEGER AUTO_INCREMENT PRIMARY KEY,
+       first_name TEXT,
+       last_name  TEXT
+);
+
+DROP TABLE IF EXISTS transactions;
+CREATE TABLE IF NOT EXISTS transactions (
+       account            INTEGER,   # References account
+       single_transaction INTEGER    # References single_transaction
+);
+
+DROP TABLE IF EXISTS single_transaction;
+CREATE TABLE IF NOT EXISTS single_transaction (
+       id                  INTEGER AUTO_INCREMENT PRIMARY KEY,
+       amount              DOUBLE,
+       transaction_type    INTEGER,  # References transaction_type
+       previous_balance	   DOUBLE,
+       new_balance	   DOUBLE,
+       transaction_date    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS transaction_type;
+CREATE TABLE IF NOT EXISTS transaction_type (
+       id   INTEGER AUTO_INCREMENT PRIMARY KEY,
+       name TEXT
+);
+
+DROP TABLE IF EXISTS session;
+
+INSERT INTO transaction_type (name) VALUES ('credit'), ('debit');
+
+INSERT INTO account (account_number, balance)
+             VALUES (10001, 10100),   # Gets id = 1
+                    (10002,  5200);   # Gets id = 2
+
+INSERT INTO person (first_name, last_name)
+            VALUES ('Edith', 'Somerville'),       # Gets id = 1
+                   ('Violet', 'Martin'),          # Gets id = 2
+	           ('James', 'Joyce');            # Gets id = 3
+
+INSERT INTO customer (account, person, password)
+               VALUES (1, 1, 'f1UtcduFY8/fM'),   # Acct 10001 pass: foo
+    	              (1, 2, 'ce.WXbG3QDff2'),   #     and joint pass: bar
+ 	              (2, 3, 'abfFYfli8Z8k2');   # Acct 10002 pass: frobniz
+
+INSERT INTO single_transaction
+       (amount, transaction_type, previous_balance, new_balance, transaction_date)
+VALUES (100, 1, 10000, 10100, '2011-04-04' ),  # Gets id = 1
+       (200, 2,  5000,  4800, '2011-04-05' ),  # Gets id = 2
+       (300, 1, 10100, 10400, '2011-05-01' ),  # Gets id = 3
+       (400, 1,  4800,  5200, '2011-04-06' );  # Gets id = 4
+
+INSERT INTO transactions (account, single_transaction)
+                  VALUES (1, 1),
+                         (2, 2),
+                         (1, 3),
+                         (2, 4);

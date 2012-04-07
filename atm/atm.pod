@@ -1,0 +1,135 @@
+=pod
+
+=head1 NAME
+
+First Bank of Seamus O'Reilly - ATM
+
+=head1 USAGE
+
+In a web browser type or paste into the address bar: http://dsass.userworld.com/perl/04/15/HW2/atm.cgi
+
+=over 8
+
+=item* Login
+
+The Login page shows Customer and Administrator Login panels. The Customer Login
+requires a customer's Account Number and Password. Input the number and password
+and press I<Login>. If the Account Number and Password are valid an Account Menu
+page will be displayed. If the values are not valid the Login page will be refreshed.
+
+The Administrator Login requires an Administrator Password. Input the password and
+press I<Login>. If the Password is valid a New Accounts page (see below) will be displayed.
+If the value is not valid the Login page will be refreshed and an attempt with valid
+information will be required.
+
+=item* Account Menu
+
+The Account Menu presents a page with an account summary: Account Number, Owner Name(s),
+and Balance. Below the summary a list of radio buttons provides access to Credit/Debit
+and Account Transfer transactions and a detailed Account Statement.
+
+Press one of the radio buttons to select a desired Transaction. If you change
+your mind about the transaction, press the Reset button to clear any Amount inputs
+and re-select the Statement button.
+
+When finished performing account transactions press I<Logout> return to the Login page.
+
+=item* Credit, Debit or Transfer-to-Account Transactions
+
+Credit or Debit Transaction increase or decrease an account balance, respectively. The
+form requires an Amount for the transaction to take place. When the I<Select> button
+is pressed the transaction is performed. A transaction summary page will be displayed.
+
+=item* Transfer Funds
+
+A Transfer Transaction decreases the current account and increases the to-account by
+the Amount selected. Select a transfer-to account from the pull-down menu and an Amount.
+Press I<Transfer> to execute the Transfer. A summary status page will be displayed after
+the transfer.
+
+=item* Create Statement
+
+An Account Statement lists the account number, owner name(s) and account balance in a
+summary table. A list of all account transactions by date, type and amount is shown
+below the summary.
+
+=item* Create new account
+
+The Administrator Login is required to create a new account. After inputting a
+valid Administrator password a New Account page is displayed that requires a
+first name, last name, amount of initial deposit, and password. Pressing the I<Create>
+button creates an account in the database using the New Account information. The
+password is encrypted and stored in the database.
+
+=back
+
+=head1 DESCRIPTION
+
+This ATM application was created to satisfy requirements for the O'Reilly School of
+Technology Applied Perl, Lesson 15, Objective 2. The CGI program and support files
+demonstrate use of Perl modules and web HTML automation.
+
+The ATM application consists of the following files:
+
+=over 4
+
+=item* atm.cgi
+
+control program for ATM. atm.cgi works in concert with ATM.pm and atm.tmpl to
+provide ATM menus and displays and to control data flow from and into the database.
+
+=item* ATM.pm
+
+support modules and subroutines
+
+=item* atm.tmpl
+
+HTML::Template source that defines the ATM displays
+
+=item* atm_create_db.pl
+
+Perl program to initialize a database
+
+=item* atm.mysql
+
+MySQL statements that initialize a database and populate several accounts.
+
+=back
+
+=head1 AUTHOR
+
+Written by I<Dennis Sass>.
+
+=head1 DEPENDENCIES
+
+The CGI scripts in this project depend on the following Perl modules:
+
+=over 4
+
+=item* CGI
+
+http://perldoc.perl.org/CGI.html
+
+=item* Class::DBI
+
+http://search.cpan.org/~tmtm/Class-DBI-v3.0.17/lib/Class/DBI.pm
+
+=item* HTML::TEMPLATE
+
+http://search.cpan.org/~samtregar/HTML-Template/Template.pm
+
+=item* ATM.pm
+
+Defines the characteristics of the database; contains subroutines that perform
+specific processing of data in and out of the database.
+
+=back
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2012 Dennis Sass dennis.sass@cox.net
+
+This software is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+=cut

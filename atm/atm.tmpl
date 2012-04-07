@@ -1,0 +1,216 @@
+<TMPL_IF NAME="login">
+<HTML>
+  <HEAD>
+    <TITLE>First Bank of S&eacute;amus O'Reilly</TITLE>
+  </HEAD>
+  <BODY>
+    <H2>First Bank of S&eacute;amus O'Reilly</H2>
+    <H3>Automated Teller Machine</H3>
+    <H4>Customer Login</H4>
+    <FORM ACTION="atm.cgi" METHOD="POST">
+      <INPUT TYPE="hidden" NAME="encrypted_pass" VALUE="<TMPL_VAR NAME=encrypted_pass>" />
+      <INPUT TYPE="hidden" NAME="form_name" VALUE="customer_login" />
+      Account Number: <INPUT NAME="account_number" TYPE="text"><BR /><BR />
+      Password: <INPUT NAME="cleartext_pass" TYPE="password"><BR /><BR />
+      <INPUT TYPE="SUBMIT" VALUE="Login" />
+    </FORM>
+    <HR />
+
+    <H4>Administrator Login</H4>
+    <FORM ACTION="atm.cgi" METHOD="POST">
+      <INPUT TYPE="hidden" NAME="account_number" VALUE="admin" />
+      <INPUT TYPE="hidden" NAME="form_name" VALUE="admin_login" />
+      Password: <INPUT NAME="cleartext_pass" TYPE="password"><BR /><BR />
+      <INPUT TYPE="SUBMIT" VALUE="Login" />
+    </FORM>
+
+    <HR />
+  </BODY>
+</HTML>
+</TMPL_IF>
+
+<TMPL_IF NAME="menu">
+  <HTML>
+    <HEAD>
+      <TITLE>First Bank of S&eacute;amus O'Reilly</TITLE>
+    </HEAD>
+    <BODY>
+      <H2>First Bank of S&eacute;amus O'Reilly</H2>
+      <H3>Automated Teller Machine</H3>
+      <H3>Account Menu</H3>
+      <!-- display login account summary -->
+      <TABLE BORDER="1">
+        <TR><TD>Account number</TD><TD><TMPL_VAR NAME="account_number"></TD></TR>
+        <TR><TD>Owner(s)</TD><TD><TMPL_VAR NAME="owners"></TD></TR>
+        <TR><TD>Balance</TD><TD><TMPL_VAR NAME="Balance"></TD></TR>
+      </TABLE>
+
+      <FORM ACTION="atm.cgi" METHOD="POST">
+
+        <INPUT TYPE="hidden" NAME="account_number" VALUE="<TMPL_VAR NAME=account_number>" />
+        <INPUT TYPE="hidden" NAME="encrypted_pass" VALUE="<TMPL_VAR NAME=encrypted_pass>" />
+        <INPUT TYPE="hidden" NAME="form_name" VALUE="menu" />
+
+        <HR />
+        <P>Select a transaction. Enter a dollar amount for credit, debit and transfer transactions.</P>
+
+        <INPUT TYPE="RADIO" NAME="<TMPL_VAR NAME=action>" VALUE="<TMPL_VAR NAME=credit>" />Credit<BR /><BR />
+        <INPUT TYPE="RADIO" NAME="<TMPL_VAR NAME=action>" VALUE="<TMPL_VAR NAME=debit>" />Debit<BR /><BR />
+        <INPUT TYPE="RADIO" NAME="<TMPL_VAR NAME=action>" VALUE="<TMPL_VAR NAME=transfer>" />Transfer to account:
+        <SELECT NAME="to_account">
+          <TMPL_LOOP NAME="xfr_account_loop">
+            <OPTION VALUE="<TMPL_VAR NAME=to_account>"><TMPL_VAR NAME="to_account"></OPTION>
+          </TMPL_LOOP>
+        </SELECT>
+
+        <BR /><BR />
+
+        Amount: <INPUT NAME="amount" TYPE="text" />
+
+        <BR /><BR />
+
+        <INPUT TYPE="RADIO" NAME="<TMPL_VAR NAME=action>" VALUE="<TMPL_VAR NAME=statement>" CHECKED="CHECKED" />Statement<BR /><BR />
+        <BR />
+
+        <INPUT TYPE="SUBMIT" VALUE="Select" />
+        <INPUT TYPE="RESET" VALUE="Reset" />
+      </FORM>
+
+      <HR />
+
+      <FORM ACTION="atm.cgi" METHOD="POST">
+        <INPUT TYPE="submit" NAME="form_name" VALUE="Logout" />
+      </FORM>
+
+      <HR />
+    </BODY>
+  </HTML>
+</TMPL_IF>
+
+<TMPL_IF NAME="new_account">
+  <HTML>
+    <HEAD>
+      <TITLE>First Bank of S&eacute;amus O'Reilly</TITLE>
+    </HEAD>
+    <BODY>
+      <H2>First Bank of S&eacute;amus O'Reilly</H2>
+      <H3>Automated Teller Machine</H3>
+      <H4>Create New Account</H4>
+
+      <FORM ACTION="atm.cgi" METHOD="POST">
+        First name:
+        <INPUT TYPE="text" NAME="first_name" VALUE="" AUTOCOMPLETE="OFF" MAXLENGTH="35" SIZE="20" /><BR/><BR/>
+        Last name:
+        <INPUT TYPE="text" NAME="last_name" VALUE="" AUTOCOMPLETE="OFF" MAXLENGTH="35" SIZE="20" /><BR/><BR/>
+        Deposit:
+        <INPUT TYPE="text" NAME="initial_deposit" VALUE="" AUTOCOMPLETE="OFF" MAXLENGTH="20" SIZE="20" /><BR/><BR/>
+        Password:
+        <INPUT TYPE="password" NAME="password" VALUE="" AUTOCOMPLETE="OFF" MAXLENGTH="20" SIZE="20" /><BR/><BR/>
+        <INPUT TYPE="hidden" NAME="form_name" VALUE="new_account" />
+        <INPUT TYPE="SUBMIT" VALUE="Create" />
+      </FORM>
+
+      <FORM ACTION="atm.cgi" METHOD="POST">
+        <INPUT TYPE="hidden" NAME="form_name" VALUE="Logout" />
+        <INPUT TYPE="submit" VALUE="Logout" />
+      </FORM>
+    </BODY>
+  </HTML>
+</TMPL_IF>
+
+<TMPL_IF NAME="choose">
+  <HTML>
+    <HEAD>
+      <TITLE>First Bank of S&eacute;amus O'Reilly</TITLE>
+    </HEAD>
+    <BODY>
+     <H2>First Bank of S&eacute;amus O'Reilly</H2>
+     <H3>Automated Teller Machine</H3>
+     <H3>Account Information</H3>
+     <TABLE BORDER="1">
+      <TR><TD>Account number</TD><TD><TMPL_VAR NAME="account_number"></TD></TR>
+      <TR><TD>Owner(s)</TD><TD><TMPL_VAR NAME="owners"></TD></TR>
+      <TR><TD>Balance</TD><TD><TMPL_VAR NAME="Balance"></TD></TR>
+     </TABLE>
+
+     <BR/><HR/>
+
+     <TMPL_IF NAME="if_statement">
+      <FORM ACTION="#" METHOD="POST">
+       <INPUT TYPE="hidden" NAME="account_number" VALUE="<TMPL_VAR NAME=account_number>" />
+       <INPUT TYPE="hidden" NAME="encrypted_pass" VALUE="<TMPL_VAR NAME=encrypted_pass>" />
+
+       <H3>Statement of Account</H3>
+       <TMPL_IF NAME="transactions_exist">
+        <TABLE BORDER="1">
+         <TR><TH>Date</TH><TH>Type</TH><TH>Amount</TH><TH>Previous Balance</TH><TH>Ending Balance</TH></TR>
+          <TMPL_LOOP NAME="transaction_loop">
+           <TR>
+            <TD><TMPL_VAR NAME="transaction_date"></TD><TD><TMPL_VAR NAME="type"></TD>
+            <TD><TMPL_VAR NAME="amount"></TD><TD><TMPL_VAR NAME="previous_balance"></TD><TD><TMPL_VAR NAME="new_balance"></TD>
+           </TR>
+          </TMPL_LOOP>
+        </TABLE>
+       <TMPL_ELSE>
+        <P><TMPL_VAR NAME="no_history"></P>
+       </TMPL_IF>
+      </FORM>
+     </TMPL_IF>
+
+     <TMPL_IF NAME="if_transaction">
+      <FORM ACTION="#" METHOD="POST">
+       <INPUT TYPE="hidden" NAME="account_number" VALUE="<TMPL_VAR NAME=account_number>" />
+       <INPUT TYPE="hidden" NAME="encrypted_pass" VALUE="<TMPL_VAR NAME=encrypted_pass>" />
+       <H3><TMPL_VAR NAME=type> Transaction</H3>
+       <P><TMPL_VAR NAME=amount> dollar transaction performed for account <TMPL_VAR NAME=account_number>.</P>
+       <HR />
+      </FORM>
+     </TMPL_IF>
+
+     <TMPL_IF NAME="if_transfer">
+      <FORM ACTION="#" METHOD="POST">
+       <INPUT TYPE="hidden" NAME="account_number" VALUE="<TMPL_VAR NAME=account_number>" />
+       <INPUT TYPE="hidden" NAME="encrypted_pass" VALUE="<TMPL_VAR NAME=encrypted_pass>" />
+       <H3>Account-to-Account Transfer</H3>
+       <P><TMPL_VAR NAME=amount> dollar transfer performed from account <TMPL_VAR NAME=from_account> to account <TMPL_VAR NAME=to_account>.</P>
+       <HR />
+      </FORM>
+     </TMPL_IF>
+
+     <FORM ACTION="atm.cgi" METHOD="POST">
+       <INPUT TYPE="hidden" NAME="account_number" VALUE="<TMPL_VAR NAME=account_number>" />
+       <INPUT TYPE="hidden" NAME="encrypted_pass" VALUE="<TMPL_VAR NAME=encrypted_pass>" />
+       <INPUT TYPE="hidden" NAME="form_name" VALUE="account_statement" />
+       <INPUT TYPE="submit" VALUE="Menu" />
+     </FORM>
+
+     <FORM ACTION="atm.cgi" METHOD="POST">
+       <INPUT TYPE="hidden" NAME="form_name" VALUE="Logout" />
+       <INPUT TYPE="submit" VALUE="Logout" />
+     </FORM>
+
+    </BODY>
+  </HTML>
+</TMPL_IF>
+
+<TMPL_IF NAME="create">
+<HTML>
+  <HEAD>
+    <TITLE>First Bank of S&eacute;amus O'Reilly</TITLE>
+  </HEAD>
+  <BODY>
+    <H2>First Bank of S&eacute;amus O'Reilly</H2>
+    <H3>Create New Account</H3>
+    <TABLE BORDER="1">
+      <TR><TD>Account number</TD><TD><TMPL_VAR NAME="account_number"></TD></TR>
+      <TR><TD>Owner(s)</TD><TD><TMPL_VAR NAME="owners"></TD></TR>
+      <TR><TD>Balance</TD><TD><TMPL_VAR NAME="Balance"></TD></TR>
+    </TABLE>
+    <P>
+      Account <TMPL_VAR NAME="account_number"> has been created
+      for <TMPL_VAR NAME="owners"> with an initial deposit of <TMPL_VAR NAME="balance">.
+    </P>
+    <A HREF="atm.cgi">Continue</A>
+  </BODY>
+</HTML>
+</TMPL_IF>

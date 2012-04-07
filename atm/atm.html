@@ -1,0 +1,161 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>O'Reilly - ATM</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#usage">USAGE</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#dependencies">DEPENDENCIES</a></li>
+	<li><a href="#license_and_copyright">LICENSE AND COPYRIGHT</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<hr />
+<h1><a name="name">NAME</a></h1>
+<p>First Bank of Seamus O'Reilly - ATM</p>
+<p>
+</p>
+<hr />
+<h1><a name="usage">USAGE</a></h1>
+<p>In a web browser type or paste into the address bar: <a href="http://dsass.userworld.com/perl/04/15/HW2/atm.cgi">http://dsass.userworld.com/perl/04/15/HW2/atm.cgi</a></p>
+<ul>
+<li><strong><a name="login" class="item">Login</a></strong>
+
+<p>The Login page shows Customer and Administrator Login panels. The Customer Login
+requires a customer's Account Number and Password. Input the number and password
+and press <em>Login</em>. If the Account Number and Password are valid an Account Menu
+page will be displayed. If the values are not valid the Login page will be refreshed.</p>
+<p>The Administrator Login requires an Administrator Password. Input the password and
+press <em>Login</em>. If the Password is valid a New Accounts page (see below) will be displayed.
+If the value is not valid the Login page will be refreshed and an attempt with valid
+information will be required.</p>
+</li>
+<li><strong><a name="account_menu" class="item">Account Menu</a></strong>
+
+<p>The Account Menu presents a page with an account summary: Account Number, Owner Name(s),
+and Balance. Below the summary a list of radio buttons provides access to Credit/Debit
+and Account Transfer transactions and a detailed Account Statement.</p>
+<p>Press one of the radio buttons to select a desired Transaction. If you change
+your mind about the transaction, press the Reset button to clear any Amount inputs
+and re-select the Statement button.</p>
+<p>When finished performing account transactions press <em>Logout</em> return to the Login page.</p>
+</li>
+<li><strong><a name="credit_debit_or_transfer_to_account_transactions" class="item">Credit, Debit or Transfer-to-Account Transactions</a></strong>
+
+<p>Credit or Debit Transaction increase or decrease an account balance, respectively. The
+form requires an Amount for the transaction to take place. When the <em>Select</em> button
+is pressed the transaction is performed. A transaction summary page will be displayed.</p>
+</li>
+<li><strong><a name="transfer_funds" class="item">Transfer Funds</a></strong>
+
+<p>A Transfer Transaction decreases the current account and increases the to-account by
+the Amount selected. Select a transfer-to account from the pull-down menu and an Amount.
+Press <em>Transfer</em> to execute the Transfer. A summary status page will be displayed after
+the transfer.</p>
+</li>
+<li><strong><a name="create_statement" class="item">Create Statement</a></strong>
+
+<p>An Account Statement lists the account number, owner name(s) and account balance in a
+summary table. A list of all account transactions by date, type and amount is shown
+below the summary.</p>
+</li>
+<li><strong><a name="create_new_account" class="item">Create new account</a></strong>
+
+<p>The Administrator Login is required to create a new account. After inputting a
+valid Administrator password a New Account page is displayed that requires a
+first name, last name, amount of initial deposit, and password. Pressing the <em>Create</em>
+button creates an account in the database using the New Account information. The
+password is encrypted and stored in the database.</p>
+</li>
+</ul>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>This ATM application was created to satisfy requirements for the O'Reilly School of
+Technology Applied Perl, Lesson 15, Objective 2. The CGI program and support files
+demonstrate use of Perl modules and web HTML automation.</p>
+<p>The ATM application consists of the following files:</p>
+<ul>
+<li><strong><a name="atm_cgi" class="item">atm.cgi</a></strong>
+
+<p>control program for ATM. atm.cgi works in concert with ATM.pm and atm.tmpl to
+provide ATM menus and displays and to control data flow from and into the database.</p>
+</li>
+<li><strong><a name="atm_pm" class="item">ATM.pm</a></strong>
+
+<p>support modules and subroutines</p>
+</li>
+<li><strong><a name="atm_tmpl" class="item">atm.tmpl</a></strong>
+
+<p>HTML::Template source that defines the ATM displays</p>
+</li>
+<li><strong><a name="atm_create_db_pl" class="item">atm_create_db.pl</a></strong>
+
+<p>Perl program to initialize a database</p>
+</li>
+<li><strong><a name="atm_mysql" class="item">atm.mysql</a></strong>
+
+<p>MySQL statements that initialize a database and populate several accounts.</p>
+</li>
+</ul>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p>Written by <em>Dennis Sass</em>.</p>
+<p>
+</p>
+<hr />
+<h1><a name="dependencies">DEPENDENCIES</a></h1>
+<p>The CGI scripts in this project depend on the following Perl modules:</p>
+<ul>
+<li><strong><a name="cgi" class="item">CGI</a></strong>
+
+<p><a href="http://perldoc.perl.org/CGI.html">http://perldoc.perl.org/CGI.html</a></p>
+</li>
+<li><strong><a name="class_dbi" class="item">Class::DBI</a></strong>
+
+<p><a href="http://search.cpan.org/~tmtm/Class-DBI-v3.0.17/lib/Class/DBI.pm">http://search.cpan.org/~tmtm/Class-DBI-v3.0.17/lib/Class/DBI.pm</a></p>
+</li>
+<li><strong><a name="html_template" class="item">HTML::TEMPLATE</a></strong>
+
+<p><a href="http://search.cpan.org/~samtregar/HTML-Template/Template.pm">http://search.cpan.org/~samtregar/HTML-Template/Template.pm</a></p>
+</li>
+<li><strong><a name="atm_pm2" class="item">ATM.pm</a></strong>
+
+<p>Defines the characteristics of the database; contains subroutines that perform
+specific processing of data in and out of the database.</p>
+</li>
+</ul>
+<p>
+</p>
+<hr />
+<h1><a name="license_and_copyright">LICENSE AND COPYRIGHT</a></h1>
+<p>Copyright 2012 Dennis Sass <a href="mailto:dennis.sass@cox.net">dennis.sass@cox.net</a></p>
+<p>This software is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.</p>
+
+</body>
+
+</html>

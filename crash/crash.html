@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<title>Car Crash</title>
+<!--
+Dennis Sass 11/10/2011
+JavaScript 1: Homework #2: Car Crash
+This assignment will show how to use external libraries to create a cross browser DHTML page.
+1.) Create a page with two cars on the left and right side of the screen respectively.
+2.) At the bottom of the page have two buttons.
+    a.) One button is labeled START and the other RESET.
+    b.) When the user presses the start button have a counter start at the top of the screen.
+        The counter should run from 5 down to 0. Once it reaches 0 write the word GO! on the
+        screen and the cars should start moving towards each other.
+3.) Once the cars hit each other they should explode in a glorious fireball.
+4.) Make sure that when the user hits the RESET button that things are set back to normal.
+5.) If you like use any object you want and any form of explosion.
+6.) Humor may make this a more enjoyable assignment.
+7.) You can use the library in the book Chapter 15 for most of the assignment.
+8.) The UFO example at the end of the chapter provides most of the code necessary to do the
+    assignment.
+9.) Make sure you use setTimeout to do your count down timer.
+    a.) You may find a form field useful to hold the count down timer or you can use a layer
+        and write content into it.
+10.) You must make sure that your example works in at least Internet Explorer 6+ and Firefox 1+.
+11.) Attention for small details about scripting off or using a down level browser will result in
+     bonus points.
+12.) Note you do not have to use the library from the book, you are free to use other
+     existing libraries online.
+13.) You must both turn in a printout of your code to the professor and email your files in a
+     WinZip archive by the assignment due date.
+-->
+<style type="text/css">
+	#car1
+	{
+	position: absolute;
+	top: 125px;
+	left: 50px;
+	z-index: 10;
+	visibility: visible;
+	}
+
+	#car2
+	{
+	position: absolute;
+	top: 100px;
+	left: 550px;
+	z-index: 20;
+	visibility:	visible;
+	}
+
+	#explosion
+	{
+	position: absolute;
+	top: 100px;
+	left: 325px;
+	z-index: 20;
+	visibility: hidden;
+	}
+
+	#counter
+	{
+	font-size: 48px;
+	color: green;
+	font-style: italic;
+	position: absolute;
+	top: 40px;
+	left: 330px;
+	z-index: 30;
+	}
+
+	#title
+	{
+	font-size: 36px;
+	color: blue;
+	font-style: normal;
+	font-weight: bold;
+	position: absolute;
+	top: 10px;
+	left: 240px;
+	z-index: 30;
+	}
+
+	#controls
+	{
+	position: absolute;
+	top: 250px;
+	left: 300px;
+	z-index: 30;
+	}
+</style>
+<script type="text/javascript" src="layerlib.js"></script>
+<script type="text/javascript">
+  var HW2_car1status;
+  var HW2_car2status;
+	var HW2_car1Id;
+	var HW2_car2Id;
+	var HW2_explodeId;
+  var HW2_car1Move;
+  var HW2_car2Move;
+  var HW2_startBtnId;
+  var HW2_resetBtnId;
+  var HW2_exploded;
+
+	/* animation speed and step */
+	var HW2_step = 3;
+	var HW2_framespeed = 35;
+	/* animation boundaries */
+	var HW2_maxleft = 365;
+	var HW2_maxright = 235;
+
+	function loadInit()
+	{
+	  HW2_startBtnId = getElement('startBtn');
+	  HW2_resetBtnId = getElement('resetBtn');
+    HW2_startBtnId.disabled = false;
+	  HW2_resetBtnId.disabled = true;
+	}
+
+	function runInit()
+	{
+		HW2_car1Id = getElement('car1');
+		HW2_car2Id = getElement('car2');
+		HW2_counterId = getElement('counter');
+	  HW2_explodeId = getElement('explosion');
+	  HW2_startBtnId = getElement('startBtn');
+	  HW2_resetBtnId = getElement('resetBtn');
+    HW2_startBtnId.disabled = true;
+	  HW2_resetBtnId.disabled = true;
+    HW2_exploded = false;
+	}
+
+	function startCountdown()
+	{
+		runInit();
+    setTimeout("setContents('counter', '5')", 1000);
+    setTimeout("setContents('counter', '4')", 1500);
+    setTimeout("setContents('counter', '3')", 2000);
+    setTimeout("setContents('counter', '2')", 2500);
+	  setTimeout("setContents('counter', '1')", 3000);
+	  setTimeout("setContents('counter', '0')", 3500);
+	  setTimeout("setContents('counter', 'GO!')", 3750);
+	  setTimeout("startCars()", 3750);
+	}
+
+  function startCars()
+  {
+  HW2_car1Status = right();
+  HW2_car2Status = left();
+  }
+
+	/* return the x-coordinate of the layer named layername */
+	function getX(layername)
+	{
+		var theLayer = getElement(layername);
+		if (layerobject)
+		{
+		  return(parseInt(theLayer.left, 10));
+		}
+		else
+		{
+		  return(parseInt(theLayer.style.left, 10));
+		}
+	}
+
+	/* move left until boundary */
+	function left()
+	{
+	  var leftX = getX('car2');
+	  if (leftX >= HW2_maxleft)
+	  {
+			leftX-=HW2_step;
+			setX('car2',leftX);
+			HW2_car2Move=setTimeout("left('car2')",(1000/HW2_framespeed));
+	  }
+	  else
+	  {
+	    clearTimeout(HW2_car2Move);
+		  if(!HW2_exploded)
+		    showExplosion();
+		}
+	}
+
+	/* move right until boundary */
+	function right()
+	{
+		var rightX = getX('car1');
+		if (rightX <= HW2_maxright)
+		{
+			rightX+=HW2_step;
+			setX('car1',rightX);
+			HW2_car1Move=setTimeout("right('car1')",(1000/HW2_framespeed));
+		}
+		else
+		{
+		  clearTimeout(HW2_car1Move);
+		  if(!HW2_exploded)
+		    showExplosion();
+		}
+	}
+
+	function showTitle()
+	{
+	  setContents('title', 'Chicken Anyone?');
+	}
+
+	function showExplosion()
+	{
+		HW2_exploded = true;
+		HW2_car1Id.style.visibility = 'hidden';
+		HW2_car2Id.style.visibility = 'hidden';
+    HW2_counterId.style.visibility = 'hidden';
+	  HW2_explodeId.style.visibility = 'visible';
+	  HW2_counterId.innerHTML = '&nbsp';
+	  HW2_startBtnId = getElement('startBtn');
+    HW2_startBtnId.disabled = true;
+    HW2_resetBtnId.disabled = false;
+	}
+
+	function resetGame()
+	{
+		HW2_car1Id.style.left = '50px';
+		HW2_car2Id.style.left = '550px';
+	  HW2_explodeId.style.visibility = 'hidden';
+		HW2_car1Id.style.visibility = 'visible';
+		HW2_car2Id.style.visibility = 'visible';
+    HW2_counterId.style.visibility = 'visible';
+    HW2_startBtnId.disabled = false;
+    HW2_resetBtnId.disabled = true;
+
+    HW2_car1status = null;
+    HW2_car2status = null;
+	  HW2_car1Id = null;
+	  HW2_car2Id = null;
+	  HW2_explodeId = null;
+    HW2_car1Move = null;
+    HW2_car2Move = null;
+    HW2_startBtnId = null;
+    HW2_resetBtnId = null;
+	}
+
+</script>
+</head>
+<body onload="loadInit();">
+	<div id="title">&nbsp;</div>
+	<div id="counter">&nbsp;</div>
+	<div id="car1" style="position: absolute; left: 50px"><img src="car1.jpg" alt="car1"></div>
+	<div id="car2" style="position: absolute; left: 550px"><img src="car2.jpg" alt="car2"></div>
+	<div id="explosion"><img src="explosion.jpg" alt="explosion"></div>
+  <form id="gameControls" name="gameControls" action="#" method="get">
+    <div id="controls">
+	    <input type="button" value="Start" id="startBtn" onclick="startCountdown();">
+	    <input type="button" value="Reset" id="resetBtn" onclick="resetGame();" disabled="disabled">
+    </div>
+  </form>
+  <script type="text/javascript">
+	<!--
+	  showTitle();
+	//-->
+	</script>
+	<noscript>
+		<p>Your browser does not support JavaScript</p>
+	</noscript>
+</body>
+</html>

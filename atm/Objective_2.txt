@@ -1,0 +1,9 @@
+Objective 1:
+Write a web-based ATM that provides functionality for credit, debit, statement
+generation, and transfer to another account listed from a pull-down menu.
+
+Create another interface for setting up an initial account to enter owner(s)
+name(s), initial balance, and a password which will be used to log in to the
+ATM; use the crypt() function to store the password and authenticate logins.
+
+Use POD to document your application.
