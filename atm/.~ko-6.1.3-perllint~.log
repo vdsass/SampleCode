@@ -1,8 +1,0 @@
-[Sat Apr  7 13:33:54 2012] .~ko-6.1.3-perllint~: Subroutine add_account redefined at C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ line 40.
-[Sat Apr  7 13:33:54 2012] .~ko-6.1.3-perllint~: Subroutine add_transaction redefined at C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ line 76.
-[Sat Apr  7 13:33:54 2012] .~ko-6.1.3-perllint~: Subroutine encryptPass redefined at C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ line 110.
-[Sat Apr  7 13:33:54 2012] .~ko-6.1.3-perllint~: Subroutine getEncPass redefined at C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ line 118.
-[Sat Apr  7 13:33:54 2012] .~ko-6.1.3-perllint~: Subroutine type redefined at C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ line 147.
-[Sat Apr  7 13:33:54 2012] .~ko-6.1.3-perllint~: Subroutine new redefined at C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ line 163.
-[Sat Apr  7 13:33:54 2012] .~ko-6.1.3-perllint~: Subroutine html_output redefined at C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ line 169.
-C:\Users\Dennis\Documents\AAADevelop\SampleCode\atm\.~ko-6.1.3-perllint~ syntax OK
