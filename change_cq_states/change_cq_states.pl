@@ -1,10 +1,10 @@
-#!/usr/brcm/ba/bin/perl
+#!/usr/ba/bin/perl
 ###############################################################################
 # change_cq_states.pl
 # CQ Integrated State Change via Electric Commander
 #
 # On a Unix machine ( xl or lc(Citrix) )
-# compile: -> brcmba -c change_cq_states.pl
+# compile: -> baperl -c change_cq_states.pl
 # run:     -> change_cq_states.pl
 #             or
 #          -> change_cq_states.pl > ../logs/change_cq_states.log 2>&1
@@ -25,7 +25,6 @@ use threads;
 
 use Getopt::Long;
 
-#use lib "/projects/mob_tools/lib";
 use lib "/projects/mobcom_andrwks/users/dsass/clone/Clearquest/lib";
 use lib "/projects/mobcom_andrwks/users/dsass/clone/Clearquest/etc";
 
@@ -36,6 +35,8 @@ use DateTime;
 
 use Cwd;
 use Carp;
+
+use FindBin;
 
 use Data::Dumper::Simple;
 use Log::Log4perl qw( get_logger :levels );
@@ -63,7 +64,7 @@ Readonly::Scalar my $REST_OK      => 0;
 Readonly::Scalar my $SLEEP_VALUE  => 5; # seconds
 Readonly::Scalar my $TRUE         => 1;
 
-Readonly::Scalar my $GIT_URIS_SEARCH  => 'ssh://mobcomgit@mobcom-git.sj.broadcom.com';
+Readonly::Scalar my $GIT_URIS_SEARCH  => 'ssh://mobcomgit@mobcom-git.sj.corp.com';
 Readonly::Scalar my $GIT_URIS_REPLACE => '/projects/mobcom_andrgit/scm';
 Readonly::Scalar my $REPOS_PATH       => '/projects/mobcom_andrgit/scm/git_repos/mpg_manifests/manifest.git';
 
@@ -105,10 +106,9 @@ Readonly::Hash my %actions => (
                                 Suspended   => 'Modify',    # Suspended does not change state
                               );
 
-
 local $| = 1;
-my $script = $0;
-$script =~ s{^.*(?:/|\\)(\w+?)\.pl$}{$1};
+my( $script ) = $FindBin::Script =~ /(^.+?)\.pl$/x;
+print "$script ", __LINE__, ' : $Sys::Hostname::hostname = ', hostname, "\n";
 
 $XML::LibXML::Error::WARNINGS = 1;
 
@@ -129,9 +129,7 @@ $XML::LibXML::Error::WARNINGS = 1;
 
 # EC procedure command:
 #
-#/projects/mobcom_andrwks/users/dsass/MPGSWCM-1222/perl/change_cq_states.pl
-#/home/hryu/change_cq_states.pl --apcp $[AP_CP] --cqproj $[CQ_PROJECT] --manifest $[MANIFEST] --newtag $[NEW_TAG_NAME] --oldtag $[OLD_TAG_NAME]--nonexecmode $[NONEXEC_MODE]
-#
+# /projects/mobcom_andrwks/users/dsass/MPGSWCM-1222/perl/change_cq_states.pl
 # /projects/mobcom_andrwks/users/dsass/MPGSWCM-1222/perl/change_cq_states.pl --apcp $[AP_CP] --cqproj $[CQ_PROJECT] --manifest $[MANIFEST] --newtag $[NEW_TAG_NAME] --oldtag $[OLD_TAG_NAME] --nonexecmode $[NONEXEC_MODE] --outputpath $[OUTPUT_PATH]
 
 my %threadHash;
@@ -227,7 +225,6 @@ my $excelDataHashRef;
 my $loggerMain = get_logger( $script );
    $loggerMain->level( $loggerMain_LogLevel );
 
-$loggerMain->info( "$script starting..." );
 $loggerMain->info( '$Clearquest::VERSION = ', $Clearquest::VERSION );
 $loggerMain->info( '$MAX_THREADS         = ', $MAX_THREADS );
 
@@ -794,9 +791,6 @@ my $projectArrayRef = $reposHRef->{ project };
 #}
 ################################################################################
 
-
-
-
 my @g_dataArray;
 
 my $ap = 0;
@@ -808,7 +802,7 @@ $cp = 1 if $AP_CP eq 'CP' or $AP_CP eq 'APCP';
 $loggerMain->debug( '$ap = ', $ap, ' $cp = ', $cp );
 
 my $repoCount = 0;
-my $cpPath    = qr{vendor/Broadcom/modem}ix;
+my $cpPath    = qr{vendor/corp/modem}ix;
 
 my $repoCounter          = 0;
 my $processedRepoCounter = 0;
@@ -820,7 +814,7 @@ REPOLOOP: for my $repoHashRef( @$projectArrayRef )
   $loggerMain->info( 'REPOLOOP: $repoHashRef->{ name } = ', $repoHashRef->{ name } );
   $repoCounter++;
 
-  # Babu: "CP code is always under vendor/Broadcom/modem.  Rest of the paths have AP code."
+  # "CP code is always under vendor/corp/modem.  Rest of the paths have AP code."
   #
   if( $ap && !$cp )
   {
@@ -863,11 +857,7 @@ REPOLOOP: for my $repoHashRef( @$projectArrayRef )
 
     my $responseARef = $thread->join();
 
-
-
     $loggerMain->debug( '$responseRef = ', ref( $responseARef ) );
-
-
 
     unless( $responseARef )
     {
@@ -953,10 +943,8 @@ else
   $loggerMain->warn( 'Finished gathering data.  There were errors:', Dumper( @RESPONSE ) );
 }
 
-
 $loggerMain->info( '$repoCounter          = ', $repoCounter );
 $loggerMain->info( '$processedRepoCounter = ', $processedRepoCounter );
-
 
 $loggerMain->debug( Dumper( @g_dataArray ) );
 
@@ -1188,25 +1176,9 @@ for my $cqId( sort keys %cqIdsProcessed )
   $loggerMain->info( 'id    = ', $excelDataHashRef->{ $cqId }{ 'id' } );
   $loggerMain->info( 'State = ', $State );
 
-  # Per Praveen, the Excel requirement is to list only current version. Not all history.
+  # the Excel requirement is to list only current version. Not all history.
   #
   my $integratedInVersionString = $newTag;
-
-  #my $versionsArrayRef = $excelDataHashRef->{ $cqId }{ 'Integrated_In_Versions' };
-  #my @versionsArray    = @$versionsArrayRef;
-  #
-  #if( $#versionsArray > 0 )
-  #{
-  #  for my $element( @versionsArray )
-  #  {
-  #    # Appending newline to each array element allows you to put all array elements in one Excel cell
-  #    $integratedInVersionString .= $element."\n";
-  #  }
-  #}
-  #else
-  #{
-  #  $integratedInVersionString = 'No data';
-  #}
 
   $loggerMain->info( "Integrated_In_Versions = \n", $integratedInVersionString );
 
@@ -1257,31 +1229,12 @@ for my $cqId( sort keys %cqIdsProcessed )
 
   # add data and update individual cell formats where required
   #
-  $cqIdLink = "http://cqweb-irva-mcbu.broadcom.com/cqweb/#/MCBU/MobC/RECORD/${cqId}&recordType=Defect&format=HTML&noframes=false&version=cqwj";
+  $cqIdLink = "http://cqweb-irva-mcbu.corp.com/cqweb/#/MCBU/MobC/RECORD/${cqId}&recordType=Defect&format=HTML&noframes=false&version=cqwj";
 
   $loggerMain->info( '$cqIdLink = ', $cqIdLink );
 
   $wsD->write_url( $dataRow, $dataCol, $cqIdLink, $cqId, $url_link_format );
   $wsD->write(     $dataRow, $dataCol + 1, $State, $center_cell_format );
-
-  #if( defined $integratedInVersionString )
-  #{
-  #  # adjust row height for multiple instances of Integrated_In_Versions
-  #  #
-  #  $integratedInVersionString =~ s/\n$//x; # remove trailing newline
-  #  my @elementsInIIV = split( /\n/x, $integratedInVersionString );
-  #  my $lengthIIV     = $#elementsInIIV + 1;
-  #  my $iivRowHeight  = 15;
-  #  if( $lengthIIV > 1 )
-  #  {
-  #    $iivRowHeight = $lengthIIV * $iivRowHeight;
-  #    $wsD->set_row( $dataRow, $iivRowHeight );
-  #  }
-  #}
-  #else
-  #{
-  #  $integratedInVersionString = 'No information';
-  #}
 
   $wsD->write( $dataRow, $dataCol + 2, $integratedInVersionString, $left_cell_wrap_format );
 
@@ -1328,20 +1281,12 @@ $wsD->set_column('G:G', 20); # IMS_Case_ID
 $wsD->set_column('H:H', 50); # Title
 $wsD->set_column('I:I', 15); # Entry_Type
 
-#if( $commandLine ) # testing
-#{
-#  push @xCqId, 'MobC00253717';
-#  push @xCqId, 'MobC00256103';
-#  push @xCqId, 'MobC00242718';
-#}
-
 $loggerMain->info( "Creating Exception_Report worksheet, if required..." );
 
 # create Exception_Report worksheet
 #   if there's data to report
 #
 my $xCqIdsFH;
-
 
   my $xCqIds_FileName = $logDirectory . $newTag . '_xCqIds.log';
 
@@ -1457,7 +1402,7 @@ if( $#xCqId > 0 )
 
     # add data and update individual cell formats where required
     #
-    $cqIdLink = "http://cqweb-irva-mcbu.broadcom.com/cqweb/#/MCBU/MobC/RECORD/${xCqId}&recordType=Defect&format=HTML&noframes=false&version=cqwj";
+    $cqIdLink = "http://cqweb-irva-mcbu.corp.com/cqweb/#/MCBU/MobC/RECORD/${xCqId}&recordType=Defect&format=HTML&noframes=false&version=cqwj";
 
     $wsE->write_url( $xDataRow, $xDataCol, $cqIdLink, $xCqId, $url_link_format );
     $wsE->write(     $xDataRow, $xDataCol + 1, $State, $center_cell_format );
@@ -1496,10 +1441,6 @@ if( $#xCqId > 0 )
 
 close $xCqIdsFH if $xCqIdsFH;
 
-
-
-
-
 # create an Excel workbook/worksheet containing the committed and CQ data
 # @g_dataArray contains the commit data
 #
@@ -1510,14 +1451,6 @@ my $committedDataWorkbookStatus = createCommittedDataWorkbook( {
                                                                }
                                                               );
 
-
-
-
-
-
-
-
-
 $loggerMain->info( "Done with workbook..." );
 
 if( $nonExecMode )
@@ -1526,16 +1459,16 @@ if( $nonExecMode )
 }
 else
 {
-  # added by psamudra. copy xlsx to irvine server
-  if (system("scp -rq ${excelDirectory}${newTag}_Integrated_CQs.xlsx xserver.irv.broadcom.com:$output_path"))
+  # copy xlsx to irv server
+  if (system("scp -rq ${excelDirectory}${newTag}_Integrated_CQs.xlsx xserver.irv.corp.com:$output_path"))
   {
-    print "__ERROR__ : couldnt scp the output excel file \"${excelDirectory}${newTag}_Integrated_CQs.xlsx\" to xserver.irv.broadcom.com:$output_path\n";
+    print "__ERROR__ : couldnt scp the output excel file \"${excelDirectory}${newTag}_Integrated_CQs.xlsx\" to xserver.irv.corp.com:$output_path\n";
   }
   else
   {
-    print "__INFO__ : successfully copied over the output excel file \"${excelDirectory}${newTag}_Integrated_CQs.xlsx\" to xserver.irv.broadcom.com:$output_path\n";
-    $loggerMain->warn( "copied excel file \"${excelDirectory}${newTag}_Integrated_CQs.xlsx\" to xserver.irv.broadcom.com:$output_path" );
-    system("ssh mobcom_ec\@xserver.irv.broadcom.com -q chmod -R 775 $output_path");
+    print "__INFO__ : successfully copied over the output excel file \"${excelDirectory}${newTag}_Integrated_CQs.xlsx\" to xserver.irv.corp.com:$output_path\n";
+    $loggerMain->warn( "copied excel file \"${excelDirectory}${newTag}_Integrated_CQs.xlsx\" to xserver.irv.corp.com:$output_path" );
+    system("ssh mobcom_ec\@xserver.irv.corp.com -q chmod -R 775 $output_path");
   }
 }
 ############################ EXCEL ###########################################
@@ -1618,10 +1551,10 @@ sub processRepo
   }
 
   my $repoName   = $pThisRepoHRef->{ name };
-  my $path       = $repoName . '.git';                   # According to Sirish, use "name" instead of "path"
+  my $path       = $repoName . '.git';                   # use "name" instead of "path"
   my $BASE_PATH  = $REMOTES{$pThisRepoHRef->{ remote }}; # . '.git'
 
-  my $cpPath     = qr{vendor/Broadcom/modem}ix;
+  my $cpPath     = qr{vendor/corp/modem}ix;
 
   my $majorPlatform = 'AP';
      $majorPlatform = 'CP' if $repoName =~ $cpPath;
@@ -1675,12 +1608,6 @@ sub processRepo
 
         $threadLogger->info( '$fullCommitId = ', $fullCommitId );
 
-
-        ########################################################################
-        #my $date            = $repo->{'commit_ids'}->{$commit_id}->{'commit_time'};
-        #my $unix_time       = $repo->{'commit_ids'}->{$commit_id}->{'commit_unix_time'};
-        #my $name            = $repo->{'name'};
-        #
         my @cqIdArray;
         my @cqIds;
 
@@ -1791,14 +1718,14 @@ sub getReposFromManifest
 
     #'remote' => [
     #                              {
-    #                                'review' => 'http://mps-gerrit.sj.broadcom.com',
+    #                                'review' => 'http://mps-gerrit.sj.corp.com',
     #                                'name' => 'mps-git',
     #                                'fetch' => '/projects/mobcom_andrgit/scm/git_repos'
     #                              },
     #                              {
-    #                                'review' => 'http://mps-gerrit.sj.broadcom.com',
+    #                                'review' => 'http://mps-gerrit.sj.corp.com',
     #                                'name' => 'mps-gerrit',
-    #                                'fetch' => 'ssh://mps-gerrit.sj.broadcom.com:29418/'
+    #                                'fetch' => 'ssh://mps-gerrit.sj.corp.com:29418/'
     #                              }
     #                            ]
 
@@ -1893,190 +1820,10 @@ sub get_commit_time {
     return $commit_time;
 }
 
-#sub setupExcel
-#{
-#
-#  $timeFormatsRef   = getDate_Time( time );
-#  $today_mm_dd_yyyy = $timeFormatsRef->[2];
-#
-#  system( "rm -f ${excelDirectory}${newTag}_Integrated_CQs.xlsx" ) if( -e $excelDirectory . $newTag.'_Integrated_CQs.xlsx' );
-#
-#  $workbook  = Spreadsheet::WriteExcel->new( $excelDirectory . $newTag . '_Integrated_CQs.xlsx' );
-#  $wsD       = $workbook->add_worksheet( 'ClearQuest_Defects' );
-#
-#  ###############################################################################
-#  # Add a handler to store the width of the longest string written to a column.
-#  # ...Use the stored width to simulate autofit of the column widths.
-#  # Do this for every worksheet you want to autofit.
-#  #
-#  $wsD->add_write_handler(qr[\w]x, \&store_string_widths);
-#
-#  # Excel row/col indices; cell formats
-#  #
-#  $titleRow              = 0;
-#  $titleCol              = 0;
-#
-#  $titleCol_Start        = 0;
-#  $titleCol_End          = 8; # zero offset
-#
-#  $titleRowHeight        = 20;
-#
-#  $summaryHeaderRow      = $titleRow + 2;
-#  $summaryHeaderHeight   = 20;
-#  $summaryHeaderCol      = 0;
-#
-#  $summaryDataRow        = $summaryHeaderRow + 1;
-#  $summaryDataRowHeight  = 15;
-#  $summaryDataCol        = 0;
-#
-#  $headerRow             = $summaryHeaderRow + 7;
-#
-#  $headerCol_Start       = 0;
-#  $headerCol_End         = 8; # zero offset
-#  $headerCol             = 0;
-#
-#  $headerHeight          = 20;
-#
-#  $dataRow               = $headerRow + 1;  # start row
-#  $dataCol               = 0;               # start col
-#  $dataRowHeight         = 15;
-#
-#  # Excel worksheet formats
-#  #
-#  $summary_header_format = $workbook->add_format( align  => 'center',
-#                                                     valign => 'vcenter',
-#                                                     bg_color => 'black',
-#                                                     color  => 'white',
-#                                                     font   => 'Arial',
-#                                                     size   => '12',
-#                                                     bold   => 1,
-#                                                     border => 1,
-#                                                   );
-#
-#  $center_cell_format = $workbook->add_format( align  => 'center',
-#                                                  valign => 'vcenter',
-#                                                  color  => 'black',
-#                                                  font   => 'Arial',
-#                                                  size   => '10',
-#                                                  bold   => 0,
-#                                                  border => 1,
-#                                                );
-#
-#  $url_link_format    = $workbook->add_format( align  => 'center',
-#                                                  valign => 'vcenter',
-#                                                  color  => 'blue',
-#                                                  underline => 1,
-#                                                  font   => 'Arial',
-#                                                  size   => '10',
-#                                                  bold   => 0,
-#                                                  border => 1,
-#                                                );
-#
-#  $left_cell_format = $workbook->add_format( align  => 'left',
-#                                                valign => 'vcenter',
-#                                                color  => 'black',
-#                                                font   => 'Arial',
-#                                                size   => '10',
-#                                                bold   => 0,
-#                                                border => 1,
-#                                              );
-#
-#  $right_cell_format = $workbook->add_format( align  => 'right',
-#                                                 valign => 'vcenter',
-#                                                 color  => 'black',
-#                                                 font   => 'Arial',
-#                                                 size   => '10',
-#                                                 bold   => 0,
-#                                                 border => 1,
-#                                               );
-#
-#  $left_cell_wrap_format = $workbook->add_format( align     => 'left',
-#                                                     valign    => 'vjustify', # doc claims this will auto-wrap
-#                                                     text_wrap => 1,
-#                                                     color     => 'black',
-#                                                     font      => 'Arial',
-#                                                     size      => '10',
-#                                                     bold      => 0,
-#                                                     border    => 1,
-#                                                   );
-#
-#  $genericHeadingFormat = $workbook->add_format( align    => 'center',
-#                                                    valign   => 'vcenter',
-#                                                    bg_color => 'green',
-#                                                    color    => 'white',
-#                                                    font     => 'Arial',
-#                                                    size     => '12',
-#                                                    bold     => 1,
-#                                                    border   => 1,
-#                                                   );
-#
-#  $cqIDHeadingFormat = $workbook->add_format( align    => 'center',
-#                                                 valign   => 'vcenter',
-#                                                 bg_color => 'yellow',
-#                                                 color    => 'blue',
-#                                                 font     => 'Arial',
-#                                                 size     => '12',
-#                                                 bold     => 1,
-#                                                 border   => 1,
-#                                               );
-#
-#  $dataRowFormat = $workbook->add_format( align  => 'center',
-#                                             valign => 'vcenter',
-#                                             color  => 'black',
-#                                             font   => 'Arial',
-#                                             size   => '10',
-#                                             bold   => 0,
-#                                           );
-#
-#  $titleFormat   = $workbook->add_format( align  => 'left',
-#                                             valign => 'vcenter',
-#                                             color  => 'black',
-#                                             font   => 'Arial',
-#                                             size   => '16',
-#                                             bold   => 1,
-#                                             border => 0,
-#                                           );
-#
-#  # define summary header formats
-#  #
-#  $wsD->set_row( $summaryHeaderRow, $summaryHeaderHeight );
-#
-#  # create summary header text with individual cell format
-#  #
-#  $wsD->write( $summaryHeaderRow,   $summaryHeaderCol,     'Summary', $summary_header_format );
-#  $wsD->write( $summaryHeaderRow,   $summaryHeaderCol + 1, 'Count',   $summary_header_format );
-#
-#  $wsD->write( $summaryDataRow,     $summaryDataCol, 'Successes',  $left_cell_format );
-#  $wsD->write( $summaryDataRow + 1, $summaryDataCol, 'Duplicates', $left_cell_format );
-#  $wsD->write( $summaryDataRow + 2, $summaryDataCol, 'Exceptions', $left_cell_format );
-#
-#  # define header formats
-#  #           set_row($row, $height, $format, $hidden, $level, $collapsed)
-#  #
-#  $wsD->set_row( $headerRow, $headerHeight );
-#
-#  # create header text with individual cell format
-#  #
-#  $wsD->write( $headerRow, $headerCol,     'CQID', $cqIDHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 1, 'State', $genericHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 2, 'Integrated_In_Versions', $genericHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 3, 'Project', $genericHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 4, 'Platform', $genericHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 5, 'Approved_By_CCB', $genericHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 6, 'IMS_Case_ID', $genericHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 7, 'Title', $genericHeadingFormat );
-#  $wsD->write( $headerRow, $headerCol + 8, 'Entry_Type', $genericHeadingFormat );
-#
-#  return;
-#
-#}
-
-
 ###############################################################################
 #
 # Functions used for Autofit.
 #
-###############################################################################
 ###############################################################################
 #
 # Adjust the column widths to fit the longest string in the column.
@@ -2298,7 +2045,7 @@ sub processCommittedImplementedRecords
   $is_Category_Type = ' ' unless defined $is_Category_Type;
   $is_Sub_Category  = ' ' unless defined $is_Sub_Category;
 
-  # requirement per Kunjal ... filter Tools > MTT records
+  # requirement ... filter Tools > MTT records
   #
   return if( $is_Category       eq 'Software' and
              $is_Category_Type  eq 'Tools'
@@ -2451,7 +2198,7 @@ sub processCommittedRecords
   $loggerMain->info ( '$is_Category_Type = ', $is_Category_Type );
   $loggerMain->info ( '$is_Sub_Category  = ', $is_Sub_Category );
 
-  # requirement per Kunjal ... filter Tools
+  # requirement per ... filter Tools
   #
   return if( $is_Category       eq 'Software' and
              $is_Category_Type  eq 'Tools'
@@ -2480,16 +2227,11 @@ sub processCommittedRecords
   # else
   #   do nothing ?
   #
-  # From Kunjal (Kunjalkumar) Parikh <kaparikh@broadcom.com>:
   #We have to be careful in changing the state of CQ in “Open” state.
   #Development team might be using the  incremental approach where they keep the CQID in “Open” state by using “Interim” keyword in CL/Commit template.
   #For example: there are 39 such defects in Capri. Example: Defect:MobC00205982
   #We need to ignore these moving to Integrated.
   #
-  #Regards,
-  #Kunjal
-  #
-  # From Babu Arunachalam <babua@broadcom.com>:
   #What processing, if any, should be taken WRT defect records in states other than ‘opened’ or ‘integrated?’
   #                Submitted   =>  Move to integrated
   #                Assigned    =>  Move to integrated
@@ -2619,16 +2361,6 @@ sub processCommittedRecords
   return;
 
 } # processCommittedRecords
-
-
-
-
-
-
-
-
-
-
 
 sub getExcelData
 {
@@ -2826,7 +2558,7 @@ sub changeDefectState
 sub validateAssignee
 {
   my $project   = shift;
-  my $emailName = shift || 'mohammed.ansari';
+  my $emailName = shift || 'admin';
 
   my( $subroutine ) = (caller(0))[3];
   local $| = 1;
@@ -2848,7 +2580,7 @@ sub validateAssignee
     return $projectDataRef->{ $project }{ swLeadEmail };
   }
 
-  return 'mohammed.ansari'; # just in case
+  return 'admin'; # just in case
 
 } # validateAssignee
 
@@ -2863,15 +2595,11 @@ sub doAction
 
   #my $logger = get_logger( $subroutine );
   #$logger->level( $doAction_LogLevel );
+
   $loggerMain->debug( "/\\" x 60 );
   $loggerMain->debug( '$key    = ', $key );
   $loggerMain->debug( '$action = ', $action );
   $loggerMain->debug( Dumper( %params ) );
-
-
-
-
-
 
   my $retryCount = 0;
   my $modifyResult;
@@ -3114,7 +2842,6 @@ sub updateIiv
 
   return $updatedIiv, \%update;
 } # updateIiv
-
 
 
 sub checkRESTError
@@ -3372,8 +3099,8 @@ sub eMailMessage
 {
   my $text = shift;
 
-  Email::Stuff->to         ( 'dsass@broadcom.com'       )
-              ->from       ( "$ENV{USER}\@broadcom.com" )
+  Email::Stuff->to         ( 'dsass@corp.com'       )
+              ->from       ( "$ENV{USER}\@corp.com" )
               ->subject    ( $script                   )
               ->text_body  ( $text                      )
               #->attach_file(                           )
@@ -3843,7 +3570,7 @@ sub createCommittedDataWorkbook
             }
           }
 
-          my( $notes )          = $component =~ /\[BROADCOM INTERNAL NOTES\]\n(.+)/s;
+          my( $notes )          = $component =~ /\[corp INTERNAL NOTES\]\n(.+)/s;
           $loggerMain->debug( Dumper( $notes ) );
 
           # 1 files changed, 7 insertions(+), 4 deletions(-)
@@ -3983,191 +3710,9 @@ sub createCommittedDataWorkbook
 
   } # OUTERLOOP
 
-
-  #foreach my $repo( @{$REPOS->{'project'}} )
-  #{
-  #  next if (! defined($repo));
-  #
-  #  foreach my $commit_id (sort { $repo->{'commit_ids'}->{$a}->{'commit_unix_time'} <=> $repo->{'commit_ids'}->{$b}->{'commit_unix_time'} } (keys %{$repo->{'commit_ids'}}))
-  #  {
-  #     #DEBUG("\tGenerating row for $commit_id");
-  #
-  #     $worksheet->set_row($row,64);
-  #     my $component       = $repo->{'commit_ids'}->{$commit_id}->{'component'};
-  #     my $date            = $repo->{'commit_ids'}->{$commit_id}->{'commit_time'};
-  #     my $unix_time       = $repo->{'commit_ids'}->{$commit_id}->{'commit_unix_time'};
-  #     my ($author)        = $component =~ /^Author:\s+(.+)/m;
-  #     my ($local_date)    = $component =~ /^Date:\s+(.+)/m;
-  #     my ($merge)         = $component =~ /^Merge:\s+(.+)/m;
-  #     my @Date            = split(/ /,$local_date);
-  #     $local_date         = $Date[1] . ' ' . $Date[2] . ', ' . $Date[4] . '<br>' . $Date[3];
-  #     my $name            = $repo->{'name'};
-  #     my ($problem)       = $component =~ /.*?\n\s*\[Problem\]\s*?\n(.+?)\n\s*\[Solution\]\s*?\n/s;
-  #     my ($solution)      = $component =~ /.*?\n\s*\[Solution\]\s*?\n(.+?)\n\s*\[Reviewers\]\s*?\n/s;
-  #
-  #     if ($merge) {
-  #          ($solution)    = $component =~ /\n\n(.+?)\n\n/s;
-  #          $problem  = "Merged:     $merge";
-  #     } elsif (! $problem && ! $solution) {
-  #          ($problem)     = $component =~ /\n\n(.+?)\n\n/s;
-  #          if (! $problem) {
-  #               ($problem) = $component =~ /\n\n(.+?)\n/s;
-  #          }
-  #     }
-  #
-  #     my ($notes)         = $component =~ /\[BROADCOM INTERNAL NOTES\]\n(.+)/s;
-  #
-  #     # 1 files changed, 7 insertions(+), 4 deletions(-)
-  #
-  #     my ($changes)       = $component =~ /(\d+) files changed/;
-  #     my ($insertions)    = $component =~ /(\d+) insertions/;
-  #     my ($deletions)          = $component =~ /(\d+) deletions/;
-  #     my $lines           = $changes + $insertions + $deletions;
-  #     my @count           = $notes =~ /\S+\s+\|\s+(\d+)\s+[\+\-]/g;
-  #     my $files           = scalar(@count);
-  #
-  #     if (defined($repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}))
-  #     {
-  #        my $first = 1;
-  #        my @Keys  = (keys %{$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}});
-  #        my $rows  = scalar(@Keys);
-  #
-  #        foreach my $cq_id (@Keys)
-  #        {
-  #          next if ($NEW && $repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'State'} eq 'Closed');
-
-  #          #DEBUG("\t============Generating row data for MobC$cq_id");
-
-  #          if ($first)
-  #          {
-  #               $worksheet->write_string($row,$col++,substr($commit_id,0,8),$top);
-  #               $worksheet->write($row,$col++,$name,$top);
-  #               $worksheet->write($row,$col++,$date,$top);
-  #               $worksheet->write($row,$col++,$author,$top);
-  #               $worksheet->write($row,$col++,$problem,$text);
-  #               $worksheet->write($row,$col++,$solution,$text);
-  #               $worksheet->write($row,$col++,$files,$top);
-  #               $worksheet->write($row,$col++,"Changes:  $changes\nInsertions:  $insertions\nDeletions:  $deletions\n-------------\nTotal:  $lines",$text);
-  #          }
-  #          else
-  #          {
-  #               $col += 8;
-  #          }
-  #
-  #
-  #          $col += $extras;
-  #          $worksheet->write_string($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'id'},$top);
-  #          my $this_platform = $repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Platform'};
-  #
-  #          if ($SDB)
-  #          {
-  #               $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Product_Migration'},$top);
-  #               if (grep(/^$this_platform$/,@{$MAPPINGS->{$PROJECT}->{'cq_platform'}}))
-  #               {
-  #                    #DEBUG("\tPlatform '$this_platform' is a valid platform of $PROJECT");
-  #                    $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Platform'},$top);
-  #               }
-  #               else
-  #               {
-  #                    #DEBUG("\tPlatform '$this_platform' is NOT a valid platform of $PROJECT");
-  #                    $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Platform'},$Color3);
-  #               }
-  #               $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Title'},$text);
-  #               $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Category_Type'},$top);
-  #          }
-  #          else
-  #          {
-  #           if ($repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Approved_by_CCB'})
-  #           {
-  #                $worksheet->write($row,$col++,'Yes',$top);
-  #           }
-  #           else
-  #           {
-  #                $worksheet->write($row,$col++,'No',$Color3);
-  #           }
-  #
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Severity'},$top);
-  #
-  #           if ($repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'State'} !~ /implemented/i)
-  #           {
-  #                $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'State'},$Color3);
-  #           }
-  #           else
-  #           {
-  #                $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'State'},$top);
-  #           }
-  #
-  #           if ($MAPPINGS->{$PROJECT}->{'cq_project'}->[0] eq $repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Project'}) {
-  #                $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Project'},$top);
-  #           } else {
-  #                $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Project'},$Color3);
-  #           }
-  #
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Title'},$text);
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Priority'},$top);
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Category_Type'},$top);
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'AssigneeFullName'},$top);
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Submitter'},$top);
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Submit_Date'},$top);
-  #
-  #
-  #           if (grep(/^$this_platform$/,@{$MAPPINGS->{$PROJECT}->{'cq_platform'}}))
-  #           {
-  #                $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Platform'},$top);
-  #           }
-  #           else
-  #           {
-  #                $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Platform'},$Color3);
-  #           }
-  #
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'Entry_Type'},$top);
-  #           $worksheet->write($row,$col++,$repo->{'commit_ids'}->{$commit_id}->{'MobC_ids'}->{$cq_id}->{'IMS_Case_ID'},$top);
-  #          }
-  #
-  #          $col = 0;
-  #          $row++;
-
-  #        } # for @cq_id
-  #    }
-  #    else
-  #    {
-  #        $worksheet->write_string($row,$col++,$commit_id,$top);
-  #        $worksheet->write($row,$col++,$name,$top);
-  #        $worksheet->write($row,$col++,$date,$top);
-  #        $worksheet->write($row,$col++,$author,$top);
-  #        $worksheet->write($row,$col++,$problem,$text);
-  #        $worksheet->write($row,$col++,$solution,$text);
-  #        $worksheet->write($row,$col++,$files,$top);
-  #        $worksheet->write($row,$col++,"Changes:  $changes\nInsertions:  $insertions\nDeletions:  $deletions\n-------------\nTotal:  $lines",$text);
-  #
-  #
-  #        $col += $extras;
-  #
-  #        if ($SDB)
-  #        {
-  #             for my $count (1..5) {
-  #                  $worksheet->write($row,$col++,'N/A',$top);
-  #             }
-  #        }
-  #        else
-  #        {
-  #          for my $count (1..13)
-  #          {
-  #            $worksheet->write($row,$col++,'N/A',$top);
-  #          }
-  #        }
-  #        $col = 0;
-  #        $row++;
-  #    }
-  #
-  #  } # for $commit_id
-  #
-  #} # for repos
-
   $loggerMain->info( 'Completed generating Committed Data Excel file' );
 
   $cdWorkbook->close();
-
 
   return;
 }
@@ -4178,7 +3723,7 @@ __END__
 
 =head1 NAME
 
-eccq_isc.pl - Perl script for Integrated State Change (in build repos) launched via Electric Commander.
+change_cq_states.pl - Perl script for Integrated State Change (in build repos) launched via Electric Commander.
 
 =head1 SYNOPSIS
 
@@ -4186,7 +3731,7 @@ eccq_isc.pl - Perl script for Integrated State Change (in build repos) launched 
 
 =head1 RUN INSTRUCTIONS
 
-  How to run eccq_isc.pl from Electric Commander:
+  How to run change_cq_states.pl from Electric Commander:
 
   In EC navigate to -
     Projects: MobCom SW Build
@@ -4230,11 +3775,11 @@ Commits between 2 tags that don't have an associated CQ
 
 =head2 ADDITIONAL REQUIREMENTS
 
-  20121022 (Kunjal):  Ignore CQ records with:
-                                            Category      eq Software
-                                            Category_Type eq Tools
-                                            Sub-Category  eq MTT (Mobile Tracking Tool)
-                      Do not change state of these records.
+  20121022: Ignore CQ records with:
+              Category      eq Software
+              Category_Type eq Tools
+              Sub-Category  eq MTT (Mobile Tracking Tool)
+            Do not change state of these records.
 
 =head1 SEE ALSO
 
@@ -4248,200 +3793,12 @@ TBD
 
 =head1 AUTHOR
 
-Dennis Sass, E<lt>dsass@broadcom.com<gt>
+Dennis Sass, E<lt>dsass@corp.com<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012 by Broadcom, Inc.
+Copyright (C) 2012 by corp, Inc.
 
 <License TBD>
 
 =cut
-
-
-
-
-#my $changeStateCQsFileName = $logDirectory . $newTag . '_changeStateCQsList.log';
-#open( my $changeStateCQs, '>', $changeStateCQsFileName )
-#  or croak( "Cannot open file $changeStateCQsFileName: $!" );
-#
-#my $fixedCQsFileName = $logDirectory . $newTag . '_fixedCQsList.log';
-#open( my $fixedCQs, '>', $fixedCQsFileName )
-#  or croak( "Cannot open file $fixedCQsFileName: $!" );
-#
-#my $otherCQsFileName = $logDirectory . $newTag . '_otherCQsList.log';
-#open( my $otherCQs, '>', $otherCQsFileName )
-#  or croak( "Cannot open file $otherCQsFileName: $!" );
-#
-#my $examineTheseCQsFileName = $logDirectory . $newTag . '_examineTheseCQsList.log';
-#open( my $examineTheseCQs, '>', $examineTheseCQsFileName )
-#  or croak( "Cannot open file $examineTheseCQsFileName: $!" );
-
-#my $p4_Change_NoCQIDs_Length = scalar( keys %$p4ChangeNoCQIDHashRef );
-#print $examineTheseCQs "\$p4_Change_NoCQIDs_Length = $p4_Change_NoCQIDs_Length\n";
-#print $examineTheseCQs Dumper( %$p4ChangeNoCQIDHashRef );
-
-#my $git_CommitIDs_NoCQIDs_Length = scalar( keys %$gitCommitNoCQIDHashRef );
-#print $examineTheseCQs "\$git_CommitIDs_NoCQIDs_Length = $git_CommitIDs_NoCQIDs_Length\n";
-#print $examineTheseCQs Dumper( %$gitCommitNoCQIDHashRef );
-
-
-               for my $cqId( @cqIds )
-                {
-                  if( $cqId > 0 ) # Process only valid CQ IDs
-                  {
-                    $threadLogger->info( 'valid cqId: $cqId = ', $cqId );
-
-                    if( exists $validCqIds{ $fullCommitId } )
-                    {
-                      $threadLogger->info( Dumper( %validCqIds ) );
-                      $threadLogger->info( 'Key exists. Appending $cqId to array...' );
-
-                      # if the key exists
-                      #  extract the existing array
-                      #    and append the new id
-                      #
-                      # can't use array reference for push in Perl < v5.014
-                      #
-
-                      my $arrayRef  = $validCqIds{ $fullCommitId };
-
-                      if( ref( $arrayRef ) eq 'ARRAY' )
-                      {
-                        my @tempArray = @$arrayRef;
-                        push @tempArray, "MobC${cqId}";
-                        my %hash      = map{ $_ => 1 } @tempArray;
-                        @cqIdArray    = keys %hash;
-                      }
-                      else
-                      {
-                        $threadLogger->fatal( "Not an ARRAY reference: \$validCqIds{ $fullCommitId } = $validCqIds{ $fullCommitId }" );
-                      }
-                    }
-                    else # key is not in the hash; just add the new key/array to the hash
-                    {
-                      $threadLogger->info( 'Key does not exist. Adding $cqId to array...' );
-                      push @cqIdArray, "MobC${cqId}";
-                    }
-
-                    $threadLogger->debug( Dumper( @cqIdArray ) );
-
-                    # Get the git commit time (committer date) and convert it to Pacific time
-                    #
-                    my $logCmd = "git --git-dir $BASE_PATH/$path log --pretty=format:%cd $fullCommitId -n 1";
-
-                    $validCqIds{ $fullCommitId }{ committime     } = get_commit_time( $logCmd );
-                    $validCqIds{ $fullCommitId }{ platform       } = $majorPlatform;
-                    $validCqIds{ $fullCommitId }{ cqids          } = \@cqIdArray;
-                    $validCqIds{ $fullCommitId }{ reponame       } = $repoName;
-                    $validCqIds{ $fullCommitId }{ component      } = \$component;
-
-                    $threadLogger->info( Dumper( %validCqIds ) );
-
-                  }
-                  else
-                  {
-                    $threadLogger->warn( 'not a valid cqId: $cqId = ', $cqId );
-                  }
-
-                } # for $cqId
-
-
-
-
-          # Make sure the description is in the standard form format and parse it for CQs
-          #
-          #[Defect / Enhancement / New Feature]
-          #MobC00234551
-          #
-          #[Problem]
-          #
-          #if( $component =~ /\[Defect \/ Enhancement \/ New Feature\](.+?)\[Problem\]/s )
-          #{
-          #  $threadLogger->info( '$component header is valid' );
-          #
-          #  my @temp = split( /\n/, $1 );
-          #  chomp( @temp );
-          #  $threadLogger->debug( Dumper( @temp ) );
-          #
-          #  LINELOOP: foreach my $line( @temp )
-          #  {
-          #      $threadLogger->debug( '$line = ', $line );
-          #
-          #      next LINELOOP if( $line =~ /<Please substitute this line with.*?>/ );
-          #
-          #      if( @cqIds = $line =~ /.*?MobC(\d+).*?/g )
-          #      {
-          #        $threadLogger->debug( Dumper( @cqIds ) );
-          #
-          #        # Loop through each CQ (if more than one per line)
-          #        #
-          #        for my $cqId( @cqIds )
-          #        {
-          #          if( $cqId > 0 ) # Process only valid CQ IDs
-          #          {
-          #            $threadLogger->debug( 'valid cqId: $cqId = ', $cqId );
-          #
-          #            if( exists $validCqIds{ $fullCommitId } )
-          #            {
-          #              $threadLogger->debug( Dumper( %validCqIds ) );
-          #              $threadLogger->info( "Key exists. Appending $cqId to array..." );
-          #
-          #              # if the key exists
-          #              #  extract the existing array
-          #              #    and append the new id
-          #              #
-          #              my $tempArrayRef = $validCqIds{ $fullCommitId }{ cqids };
-          #              $threadLogger->info( Dumper( $tempArrayRef ) );
-          #
-          #              push @$tempArrayRef, "MobC${cqId}";
-          #              $threadLogger->info( Dumper( $tempArrayRef ) );
-          #
-          #              my %hash      = map{ $_ => 1 } @$tempArrayRef;
-          #              $threadLogger->info( Dumper( %hash ) );
-          #
-          #              @cqIdArray    = keys %hash;
-          #              $threadLogger->info( Dumper( @cqIdArray ) );
-          #
-          #            }
-          #            else # key is not in the hash; just add the new key/array to the hash
-          #            {
-          #              $threadLogger->info( "Key does not exist. Adding $cqId to array..." );
-          #              push @cqIdArray, "MobC${cqId}";
-          #
-          #              $threadLogger->debug( Dumper( @cqIdArray ) );
-          #            }
-          #
-          #            # Get the git commit time (committer date) and convert it to Pacific time
-          #            #
-          #            my $logCmd = "git --git-dir $BASE_PATH/$path log --pretty=format:%cd $fullCommitId -n 1";
-          #
-          #            $validCqIds{ $fullCommitId }{ committime     } = get_commit_time( $logCmd );
-          #            $validCqIds{ $fullCommitId }{ platform       } = $majorPlatform;
-          #            $validCqIds{ $fullCommitId }{ cqids          } = \@cqIdArray;
-          #            $validCqIds{ $fullCommitId }{ reponame       } = $repoName;
-          #            $validCqIds{ $fullCommitId }{ component      } = \$component;
-          #
-          #            $threadLogger->debug( Dumper( %validCqIds ) );
-          #
-          #          }
-          #          else
-          #          {
-          #            $threadLogger->warn( 'Not a valid cqId: $cqId = ', $cqId );
-          #          }
-          #
-          #        } # for $cqId
-          #      } # if MobC
-          #      else
-          #      {
-          #        $threadLogger->warn( "No CQ's on this line..." );
-          #      }
-          #
-          #    } # LINELOOP
-          #
-          #} # if $component
-          #else
-          #{
-          #  $threadLogger->warn( 'Form is not standard. No cqId information...' );
-          #  $threadLogger->warn( Dumper( $component ) );
-          #}
