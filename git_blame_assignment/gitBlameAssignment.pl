@@ -1,4 +1,4 @@
-#!/usr/brcm/ba/bin/perl
+#!/usr/bin/perl
 use strict;
 use warnings;
 
@@ -17,7 +17,7 @@ use File::Path qw(make_path remove_tree);
 use File::Spec;
 
 use lib '/projects/mob_tools/lib/perl';
-use BRCM::LDAP;
+use CORP::LDAP;
 
 use Log::Log4perl qw( get_logger :levels );
 
@@ -53,7 +53,7 @@ my( $g_logDirectory_test, $g_logDirectory_production, $g_restMessageRegex,
     $g_modificationAgeThreshold, $g_projectLeadsFile, $g_xEmailLoginFile, $g_pwConfigFile,
     $g_defaultManager, $g_p4Admin, $g_p4AdminRegex, $g_adminEmailRegex, $g_scmPw, $g_ldapPw,
     $g_ownerLoginRegex, $g_blameRegex, $g_mpsRegex, $g_dateTimeRegex,
-    $g_javaReplyRegex, $g_broadcomRegex
+    $g_javaReplyRegex, $g_corpRegex
   );
 #   constants
 my( $FALSE, $TRUE, $LINELENGTH, $COMMA, $SLASH, $DASH, $SPACE, $EQUAL, $CR, $LF,
@@ -66,7 +66,7 @@ my( $FALSE, $TRUE, $LINELENGTH, $COMMA, $SLASH, $DASH, $SPACE, $EQUAL, $CR, $LF,
 #
 setGlobalParameters( getConfig( $configFilePath ) );
 
-# read the password file; extract the pw for mcsi_user
+# read the password file; extract the pw for swcm_user
 #
 my $pwHRef   = getPwValues( $g_pwConfigFile );
 
@@ -102,11 +102,11 @@ my( $blameEmail, $dateModified ) = getBlameEmail();
 
 my( $assigneeFullName, $cqHybridName, $assigneeEmail, $assigneeLoginName );
 
-# author in Broadcom domain?
+# author in corp domain?
 #
-if( $blameEmail =~ $g_broadcomRegex )
+if( $blameEmail =~ $g_corpRegex )
 {
-  # line modified more than 90 days ago?
+  # line modified more than <threshold> days ago?
   #
   my $now = localtime;
   my $aDateInThePast  = $now;
@@ -153,7 +153,7 @@ if( $blameEmail =~ $g_broadcomRegex )
 }
 else
 {
-  $loggerMain->info( 'Author not in Broadcom domain: $blameEmail = ', $blameEmail );
+  $loggerMain->info( 'Author not in corp domain: $blameEmail = ', $blameEmail );
   print ' ' . "\n";
 }
 
@@ -179,7 +179,7 @@ sub getBlameEmail
 {
   # $cid is an input argument (global)
   #
-  # my @lineNumbers = qx{java -jar /projects/mobcom_andrwks_ext29/users/albertc/CovJavaAppsV6/GetLineNos.jar --host mpsscm-coverity --port 8080 --user mcsi_user --password mcsi02test --stream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 --cid $cid};
+  # my @lineNumbers = qx{java -jar /projects/mobcom_andrwks_ext29/users/albertc/CovJavaAppsV6/GetLineNos.jar --host scm-coverity --port 8080 --user swcm_user --password mcsi02test --stream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 --cid $cid};
 
   my $hRef = getLineNumbersCmd(
                                 {
@@ -206,7 +206,7 @@ sub getBlameEmail
     chomp $line;
 
     # The Blame line to parse:
-    # 2013/02/11 11:12:48 160 INFO $stdOutRef $_ = fecb48fe (<dsass@broadcom.com> 2013-01-15 09:39:07 -0800    3) # This script reproduces the functionality of the AndroidAutoBuild_SyncFromCentralRepo.sh
+    # 2013/02/11 11:12:48 160 INFO $stdOutRef $_ = fecb48fe (<dsass@corp.com> 2013-01-15 09:39:07 -0800    3) # This script reproduces the functionality of the AndroidAutoBuild_SyncFromCentralRepo.sh
     #
     my $blameResultHRef = gitBlameCmd(
                                       {
@@ -226,7 +226,7 @@ sub getBlameEmail
       # dummy-up a git blame response line
       #    that will insure an assignment to the project lead
       #
-      my $dummy = '^bc611bf (<pgaurav@broadcom.com> 2011-03-04 18:04:43 -0800 200)';
+      my $dummy = '^bc611bf (<pga@corp.com> 2011-03-04 18:04:43 -0800 200)';
       push @results, $dummy;
       $loggerMain->error( 'Error from gitBlameCmd(). Using default assignment' );
     }
@@ -283,7 +283,7 @@ sub getLoggerLevel
   return $loggerLevel;
 }
 
-# my @lineNumbers = qx{java -jar /projects/mobcom_andrwks_ext29/users/albertc/CovJavaAppsV6/GetLineNos.jar --host mpsscm-coverity --port 8080 --user mcsi_user --password mcsi02test --stream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 --cid $cid};
+# my @lineNumbers = qx{java -jar /projects/mobcom_andrwks_ext29/users/albertc/CovJavaAppsV6/GetLineNos.jar --host scm-coverity --port 8080 --user swcm_user --password mcsi02test --stream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 --cid $cid};
 
 sub getLineNumbersCmd
 {
@@ -293,10 +293,10 @@ sub getLineNumbersCmd
 
   local $|      = 1;
 
-  my $jarPath = '/projects/mobcom_andrwks_ext29/users/albertc/CovJavaAppsV6/GetLineNos.jar';
-  my $host    = 'mpsscm-coverity';
+  my $jarPath = '/projects/GetLineNos.jar';
+  my $host    = 'scm-coverity';
   my $port    = '8080';
-  my $user    = 'mcsi_user';
+  my $user    = 'swcm_user';
 
   my $cmdString  = "java -jar $jarPath --host $host --port $port --user $user --password $g_scmPw --stream $covStream --cid $covId";
 
@@ -624,7 +624,7 @@ sub getCQObject
 sub validateAssignee
 {
   my $project = shift;
-  my $login   = shift || 'AdminAutoSubmit';
+  my $login   = shift || 'Admin';
 
   my( $subroutine ) = (caller(0))[3];
   local $| = 1;
@@ -720,8 +720,7 @@ sub validateAssignee
           #database failed! $error = IO::Socket::INET: connect: timeout
           #
           #returns->   'manager login' # from gitBlameAssignment.xml
-          #
-          # Albert Chang:
+          # AC:
           # For the 2nd situation, I prefer an inconclusive return. So,
           # triageBlame.jar ignores this defect for the time being. The
           # coverity defect stays as new in status. The triageBlame.jar runs
@@ -739,7 +738,7 @@ sub validateAssignee
     } # is_active
     else
     {
-      $logger->info( $login, ' is not an active Broadcom employee. Using SW Lead.' );
+      $logger->info( $login, ' is not an active corp employee. Using SW Lead.' );
       $logger->info( '$dBRecord{ is_active } = ', $dBRecord{ is_active } );
       $logger->info( '$dBRecord{ misc_info } = ', $dBRecord{ misc_info } );
 
@@ -775,7 +774,7 @@ sub getManager
 
   my %options = ( 'LDAP-passwd' => $g_ldapPw );
 
-  my( $ldap, $error ) = BRCM::LDAP->new( %options );
+  my( $ldap, $error ) = CORP::LDAP->new( %options );
   if( $error )
   {
     $logger->error( 'Bind to LDAP database failed! $error = ', $error );
@@ -974,12 +973,12 @@ sub setGlobalParameters
   # REGULAR EXPRESSIONS
   #
   Readonly::Scalar $g_restMessageRegex          => qr{Resource\snot\sfound}x;
-  Readonly::Scalar $g_p4AdminRegex              => qr{$g_p4Admin|mcsi_user}ix;
+  Readonly::Scalar $g_p4AdminRegex              => qr{$g_p4Admin|swcm_user}ix;
   Readonly::Scalar $g_adminEmailRegex           => qr{^(.+?)@}x;
   Readonly::Scalar $g_ownerLoginRegex           => qr{^(.+?)@}x;
   Readonly::Scalar $g_mpsRegex                  => qr{MPS|Data\sModule|EMBEDDED}x;
 
-  Readonly::Scalar $g_broadcomRegex             => qr{broadcom}ix;
+  Readonly::Scalar $g_corpRegex             => qr{corp}ix;
 
   Readonly::Scalar $g_javaReplyRegex            => qr{Picked\sup\s_JAVA_OPTIONS:}x;
 

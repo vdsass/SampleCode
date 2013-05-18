@@ -1,8 +1,8 @@
-#!/usr/brcm/ba/bin/perl
+#!/usr/bin/perl
 use strict;
 use warnings;
 
-use lib q{/projects/mobcom_andrwks/users/dsass/lib};
+use lib q{/projects/mobile/users/dsass/lib};
 use Blame;
 
 use Carp;
@@ -32,7 +32,7 @@ use utf8;
 #       The interaction with other use statements has not been debugged;
 #       placing this last seems to be 'safe'
 #
-use lib "/projects/mobcom_andrwks/users/dsass/clone/Clearquest/v218lib";
+use lib "/projects/mobile/users/dsass/clone/Clearquest/v218lib";
 use Clearquest;
 
 local $| = 1;
@@ -452,7 +452,7 @@ sub setGlobalParameters
   Readonly::Scalar $MAX_DIRWAIT_COUNT           => 12;
 
   Readonly::Scalar $g_p4EnvPort => q(Pf-sj1-mob.sj.broadcom.com:1668);
-  Readonly::Scalar $g_p4EnvUser => q(mcsi_user);
+  Readonly::Scalar $g_p4EnvUser => q(admin);
   Readonly::Scalar $g_p4EnvPath => q(:/tools/perforce/2010.2/x86_64-rhel5);
   Readonly::Scalar $g_p4Exe     => q(/tools/perforce/2010.2/x86_64-rhel5/p4);
 
@@ -485,7 +485,7 @@ sub setGlobalParameters
   Readonly::Scalar $g_changeRegex => qr{${leadin}${clId}${action}${yyyymmdd}${hhmmss}${user}}x;
 
   Readonly::Scalar $g_restMessageRegex => qr{Resource\snot\sfound}x;
-  Readonly::Scalar $g_p4AdminRegex     => qr{$g_p4Admin|mcsi_user}ix;
+  Readonly::Scalar $g_p4AdminRegex     => qr{$g_p4Admin|admin}ix;
   Readonly::Scalar $g_adminEmailRegex  => qr{^(.+?)@}x;
   Readonly::Scalar $g_ownerLoginRegex  => qr{^(.+?)@}x;
 

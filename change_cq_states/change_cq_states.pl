@@ -1,4 +1,4 @@
-#!/usr/ba/bin/perl
+#!/usr/bin/perl
 ###############################################################################
 # change_cq_states.pl
 # CQ Integrated State Change via Electric Commander
@@ -253,201 +253,11 @@ my @tags;
 my %REMOTES;
 my %INPUT_VALUES;
 
-#if( $COMMAND_LINE == $TRUE )
-#{
-#  $loggerMain->debug( "Running from the command-line..." );
-#
-#  # 20130110 Test Case 1:
-#  #
-#  #
-#  #Name Value
-#  #CL_NUMBER 475433
-#  #COMMIT_ID 1ca486540128607c8818f07a1393682113b79839
-#  #COMMIT_REPO_PATH repo_msp/modem/capri
-#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_CapriSDB
-#  #CQ_PROJECT Capri
-#  #DISABLE_MANIFEST_CHECK 1
-#  #MANIFEST sdb-common-android-jb
-#  #MANIFEST_COMMITID
-#  #NEW_TAG_NAME MP_1.1.2_BCM28155_SystemRel_3.2.8.1
-#  #NONEXEC_MODE 0
-#  #OLD_TAG_NAME MP_1.1.1_BCM28155_SystemRel_3.2.8
-#  #USER_NAME kamrun, abhutani
-#
-#  $CQProject   = 'Capri';
-#  $manifest    = 'sdb-common-android-jb';
-#  $oldTag      = 'MP_1.1.1_BCM28155_SystemRel_3.2.8';
-#  $newTag      = 'MP_1.1.2_BCM28155_SystemRel_3.2.8.1';
-#
-#  # 20130110 Test Case 2:
-#  #
-#  #
-#  #CL_NUMBER 476492
-#  #COMMIT_ID 80a1699c76a058be038a43e25812ce1679df7fee
-#  #COMMIT_REPO_PATH repo_lmp/kernel/linux-hawaii
-#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_CapriSDB
-#  #CQ_PROJECT Capri
-#  #DISABLE_MANIFEST_CHECK 0
-#  #MANIFEST sdb-common-android-jb-4.2
-#  #MANIFEST_COMMITID 3d5d27958d974fd3a057b378bee5f0354497eb49
-#  #NEW_TAG_NAME MP_2.2.0_BCM28155_SystemRel_4.2.5
-#  #NONEXEC_MODE 0
-#  #OLD_TAG_NAME MP_2.51.0_BCM28155_SystemRel_4.2.4
-#  #USER_NAME abhutani, kamrun
-#
-#  #$CQProject   = 'Capri';
-#  #$manifest    = 'sdb-common-android-jb-4.2';
-#  #$oldTag      = 'MP_2.51.0_BCM28155_SystemRel_4.2.4';
-#  #$newTag      = 'MP_2.2.0_BCM28155_SystemRel_4.2.5';
-#
-#  # 20130110 Test Case 3:
-#  #
-#  #CL_NUMBER 476234
-#  #COMMIT_ID 344d24cf33387da627d61aae165aee35de72a4ff
-#  #COMMIT_REPO_PATH repo_msp/modem/capri
-#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_RheaSDB
-#  #CQ_PROJECT RheaROW
-#  #DISABLE_MANIFEST_CHECK 1
-#  #MANIFEST sdb-common-android-jb
-#  #MANIFEST_COMMITID 044a937b162a009049312bf58e2e18ea138ad250
-#  #NEW_TAG_NAME MP_1.2.0_BCM21654ROW_SystemRel_2.2.23
-#  #NONEXEC_MODE 0
-#  #OLD_TAG_NAME MP_1.1.0_BCM21654ROW_SystemRel_2.2.22
-#  #USER_NAME vadapala
-#
-#  #$CQProject   = 'RheaROW';
-#  #$manifest    = 'sdb-common-android-jb';
-#  #$oldTag      = 'MP_1.1.0_BCM21654ROW_SystemRel_2.2.22';
-#  #$newTag      = 'MP_1.2.0_BCM21654ROW_SystemRel_2.2.23';
-#
-#  # 20130110 Test Case 4:
-#  #
-#  #CL_NUMBER 475446
-#  #COMMIT_ID 344f14513c53ffd5df1f92002b7fd189a694bd8e
-#  #COMMIT_REPO_PATH repo_tools/scripts
-#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_RheaSDB
-#  #CQ_PROJECT RheaROW
-#  #DISABLE_MANIFEST_CHECK 1
-#  #MANIFEST sdb-common-android-jb-4.2
-#  #MANIFEST_COMMITID 6d9e5202e3cb73f1ec830f00c95eb0ef5e68db6f
-#  #NEW_TAG_NAME MP_2.1.0_BCM21654ROW_SystemRel_3.0.5
-#  #NONEXEC_MODE 0
-#  #OLD_TAG_NAME MP_2.51.0_BCM21654ROW_SystemRel_3.0.4
-#  #USER_NAME vadapala
-#
-#  #$CQProject   = 'RheaROW';
-#  #$manifest    = 'sdb-common-android-jb-4.2';
-#  #$oldTag      = 'MP_2.51.0_BCM21654ROW_SystemRel_3.0.4';
-#  #$newTag      = 'MP_2.1.0_BCM21654ROW_SystemRel_3.0.5';
-#
-#  #Try these New and Old tag sets
-#  #
-#  #MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1
-#  #MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1
-#  #
-#  #
-#  #MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1
-#  #MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15
-#
-#  # 20130111 Test Case 5:
-#  #  3.2.1
-#  #AP Release Info AP Release Tag in GIT:  MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1
-#  #Until Commit: # f2ea739 in repo_lmp/kernel/linux-hawaii
-#  #Release Documents
-#  #GIT Manifest:  sdb-common-android-jb #
-#  #GIT Mainline Dev Branch:  sdb-common-android-jb
-#  #CP Release Info  CP Release Label in P4:  MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1 (based on CL 460742)
-#  #P4 Release Client-Spec Name:  //spec/client/TEMPLATE_CapriSDB.p4s
-#  #P4 Mainline Dev Branch:  //depot/Sources/SystemDevelopment/Capri/msp/...
-#  #Release Location(s)  IRVINE
-#  #BRACKNELL-UK
-#
-#  #$CQProject   = 'Capri';
-#  #$manifest    = 'sdb-common-android-jb';
-#  #$oldTag      = 'MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1';
-#  #$newTag      = 'MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1';
-#
-#  # 20130111 Test Case 6
-#  #3.0.15.1
-#  #AP Release Info AP Release Tag in GIT:  MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1
-#  #Until Commit: # e7a7a93 in repo_msp/modem/rhea
-#  #Release Documents
-#  #GIT Manifest:  sdb-common-android-jb #f681be5
-#  #GIT Mainline Dev Branch:  sdb-common-android-jb
-#  #CP Release Info  CP Release Label in P4:  MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1 (based on CL 460217)
-#  #P4 Release Client-Spec Name:  //spec/client/TEMPLATE_CapriSDB.p4s
-#  #P4 Mainline Dev Branch:  //depot/Sources/SystemDevelopment/Capri/msp/...
-#  #Release Location(s)  IRVINE
-#  #BRACKNELL-UK
-#
-#  #$CQProject   = 'Capri';
-#  #$manifest    = 'sdb-common-android-jb';
-#  #$oldTag      = 'MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15';
-#  #$newTag      = 'MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1';
-#
-#  # 20130111 Test Case 7
-#  #  3.0.15
-#  #AP Release Info AP Release Tag in GIT:  MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15
-#  #Until Commit: # aea2191 in repo_aosp/platform/hardware/libhardware
-#  #Release Documents
-#  #GIT Manifest:  sdb-common-android-jb #67144fa
-#  #GIT Mainline Dev Branch:  sdb-common-android-jb
-#  #CP Release Info  CP Release Label in P4:  MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15 (based on CL 459688)
-#  #P4 Release Client-Spec Name:  //spec/client/TEMPLATE_CapriSDB.p4s
-#  #P4 Mainline Dev Branch:  //depot/Sources/SystemDevelopment/Capri/msp/...
-#  #Release Location(s)  IRVINE
-#  #BRACKNELL-UK
-#
-#  #$CQProject   = 'Capri';
-#  #$manifest    = 'sdb-common-android-jb';
-#  #$oldTag      = '';
-#  #$newTag      = 'MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15';
-#
-#
-#  $AP_CP       = 'APCP';
-#
-#  $output_path = ' ';
-#  $nonExecMode = 1;                      # 0=> update CQdB; 1=> do not update CQdB
-#
-#}
-#else
-#{
-#  $loggerMain->debug( "Running from Electric Commander..." );
-#
-#  # open ec connection; global $EC will contain objectRef
-#  #
-#  $loggerMain->debug( "opening an EC connection..." );
-#
-#  open_ec_connection();
-#
-#  # get information from EC; global $EC will contain objectRef
-#  #
-#  $loggerMain->debug( "getting input from EC..." );
-#
-#  get_info_from_ec();
-#
-#  $loggerMain->debug( Dumper( @INPUT_FIELDS ) );
-#  $loggerMain->debug( Dumper( %INPUT_VALUES ) );
-#
-#  $AP_CP       = trimWhitespace( $INPUT_VALUES{ AP_CP        } );
-#  $CQProject   = trimWhitespace( $INPUT_VALUES{ CQ_PROJECT   } );
-#  $oldTag      = trimWhitespace( $INPUT_VALUES{ OLD_TAG_NAME } );
-#  $newTag      = trimWhitespace( $INPUT_VALUES{ NEW_TAG_NAME } );
-#
-#  $manifest    = trimWhitespace( $INPUT_VALUES{ MANIFEST     } );
-#
-#  $output_path = trimWhitespace( $INPUT_VALUES{ OUTPUT_PATH  } );
-#  $nonExecMode = trimWhitespace( $INPUT_VALUES{ NONEXEC_MODE } ); # for testing; CQdB is not updated if set
-#
-#}
-
-
 #convert to unix path
 #
 $output_path =~ s-\\\\-\\-g;
 $output_path =~ s-^.*\\projects-/projects-;
 $output_path =~ s-\\-/-g;
-
 
 # initialize excel
 
@@ -3466,50 +3276,12 @@ sub createCommittedDataWorkbook
   $row++;
   $col = 0;
 
-  # @g_dataArray holds has references to git-specific data
+  # @g_dataArray holds hash references to git-specific data
   #
   my $platform;
   my $reponame;
   my $componentRef;
   my $commitTime;
-
-  #4049 INFO $platform   = AP
-  #4050 INFO $reponame   = repo_aosp/platform/packages/apps/Contacts
-  #4051 INFO $commitTime = Wed Jan 2 2013 09:20:11 PM -0800
-  #4052 INFO $component  = SCALAR(0xa1ed0d8)
-  #4053 INFO
-
-  #for my $hashRef( @g_dataArray )
-  #{
-  #  for my $commitKey( keys %$hashRef )
-  #  {
-  #    $platform     = $hashRef->{$commitKey}{platform};
-  #    $reponame     = $hashRef->{$commitKey}{reponame};
-  #    $componentRef = $hashRef->{$commitKey}{component};
-  #    $commitTime   = $hashRef->{$commitKey}{committime};
-  #  }
-  #
-  #  $loggerMain->info( '$platform      = ', $platform );
-  #  $loggerMain->info( '$reponame      = ', $reponame );
-  #  $loggerMain->info( '$commitTime    = ', $commitTime );
-  #  $loggerMain->info( '$componentRef  = ', $componentRef );
-  #  $loggerMain->info( "\n" );
-  #
-  #}
-
-
-  # committed cqIds
-  #
-  #4060 INFO $committedCqIdsRef = {
-  #                     'MobC00271655' => '46f2d759a4fdb1dbec40fee2bd706afee47f8c34',
-  #                     'MobC00271604' => '81686bcfffdae2806af5f6c988eb7d9230bc8e20',
-  #                     'MobC00271649' => 'f1f5e7d84da8bab954f8cfed03835d624bd10908',
-  #                     'MobC00269697' => 'b23b7bd403bedcb476ba5016bd4583e028a125e6',
-  #                     'MobC00271561' => '03285f7e8f029d3294e207d1019c68746db8c7c4'
-  #                   };
-  #
-  #$loggerMain->info( Dumper( $committedCqIdsRef ) );
-
 
   OUTERLOOP: while( my ($cqId, $gitId ) = each %$committedCqIdsRef )
   {
@@ -3543,9 +3315,6 @@ sub createCommittedDataWorkbook
 
           my( $local_date )    = $component =~ /^Date:\s+(.+)/m;
           $loggerMain->debug( Dumper( $local_date ) );
-
-          #my @Date          = split(/ /,$local_date);
-          #$local_date       = $Date[1] . ' ' . $Date[2] . ', ' . $Date[4] . ' ' . $Date[3];
 
           my( $problem )       = $component =~ /.*?\n\s*\[Problem\]\s*?\n(.+?)\n\s*\[Solution\]\s*?\n/s;
           $loggerMain->debug( Dumper( $problem ) );
@@ -3802,3 +3571,228 @@ Copyright (C) 2012 by corp, Inc.
 <License TBD>
 
 =cut
+
+#if( $COMMAND_LINE == $TRUE )
+#{
+#  $loggerMain->debug( "Running from the command-line..." );
+#
+#  # 20130110 Test Case 1:
+#  #
+#  #
+#  #Name Value
+#  #CL_NUMBER 475433
+#  #COMMIT_ID 1ca486540128607c8818f07a1393682113b79839
+#  #COMMIT_REPO_PATH repo_msp/modem/capri
+#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_CapriSDB
+#  #CQ_PROJECT Capri
+#  #DISABLE_MANIFEST_CHECK 1
+#  #MANIFEST sdb-common-android-jb
+#  #MANIFEST_COMMITID
+#  #NEW_TAG_NAME MP_1.1.2_BCM28155_SystemRel_3.2.8.1
+#  #NONEXEC_MODE 0
+#  #OLD_TAG_NAME MP_1.1.1_BCM28155_SystemRel_3.2.8
+#  #USER_NAME kamrun, abhutani
+#
+#  $CQProject   = 'Capri';
+#  $manifest    = 'sdb-common-android-jb';
+#  $oldTag      = 'MP_1.1.1_BCM28155_SystemRel_3.2.8';
+#  $newTag      = 'MP_1.1.2_BCM28155_SystemRel_3.2.8.1';
+#
+#  # 20130110 Test Case 2:
+#  #
+#  #
+#  #CL_NUMBER 476492
+#  #COMMIT_ID 80a1699c76a058be038a43e25812ce1679df7fee
+#  #COMMIT_REPO_PATH repo_lmp/kernel/linux-hawaii
+#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_CapriSDB
+#  #CQ_PROJECT Capri
+#  #DISABLE_MANIFEST_CHECK 0
+#  #MANIFEST sdb-common-android-jb-4.2
+#  #MANIFEST_COMMITID 3d5d27958d974fd3a057b378bee5f0354497eb49
+#  #NEW_TAG_NAME MP_2.2.0_BCM28155_SystemRel_4.2.5
+#  #NONEXEC_MODE 0
+#  #OLD_TAG_NAME MP_2.51.0_BCM28155_SystemRel_4.2.4
+#  #USER_NAME abhutani, kamrun
+#
+#  #$CQProject   = 'Capri';
+#  #$manifest    = 'sdb-common-android-jb-4.2';
+#  #$oldTag      = 'MP_2.51.0_BCM28155_SystemRel_4.2.4';
+#  #$newTag      = 'MP_2.2.0_BCM28155_SystemRel_4.2.5';
+#
+#  # 20130110 Test Case 3:
+#  #
+#  #CL_NUMBER 476234
+#  #COMMIT_ID 344d24cf33387da627d61aae165aee35de72a4ff
+#  #COMMIT_REPO_PATH repo_msp/modem/capri
+#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_RheaSDB
+#  #CQ_PROJECT RheaROW
+#  #DISABLE_MANIFEST_CHECK 1
+#  #MANIFEST sdb-common-android-jb
+#  #MANIFEST_COMMITID 044a937b162a009049312bf58e2e18ea138ad250
+#  #NEW_TAG_NAME MP_1.2.0_BCM21654ROW_SystemRel_2.2.23
+#  #NONEXEC_MODE 0
+#  #OLD_TAG_NAME MP_1.1.0_BCM21654ROW_SystemRel_2.2.22
+#  #USER_NAME vadapala
+#
+#  #$CQProject   = 'RheaROW';
+#  #$manifest    = 'sdb-common-android-jb';
+#  #$oldTag      = 'MP_1.1.0_BCM21654ROW_SystemRel_2.2.22';
+#  #$newTag      = 'MP_1.2.0_BCM21654ROW_SystemRel_2.2.23';
+#
+#  # 20130110 Test Case 4:
+#  #
+#  #CL_NUMBER 475446
+#  #COMMIT_ID 344f14513c53ffd5df1f92002b7fd189a694bd8e
+#  #COMMIT_REPO_PATH repo_tools/scripts
+#  #CP_TEMPLATE_CLIENTSPEC TEMPLATE_RheaSDB
+#  #CQ_PROJECT RheaROW
+#  #DISABLE_MANIFEST_CHECK 1
+#  #MANIFEST sdb-common-android-jb-4.2
+#  #MANIFEST_COMMITID 6d9e5202e3cb73f1ec830f00c95eb0ef5e68db6f
+#  #NEW_TAG_NAME MP_2.1.0_BCM21654ROW_SystemRel_3.0.5
+#  #NONEXEC_MODE 0
+#  #OLD_TAG_NAME MP_2.51.0_BCM21654ROW_SystemRel_3.0.4
+#  #USER_NAME vadapala
+#
+#  #$CQProject   = 'RheaROW';
+#  #$manifest    = 'sdb-common-android-jb-4.2';
+#  #$oldTag      = 'MP_2.51.0_BCM21654ROW_SystemRel_3.0.4';
+#  #$newTag      = 'MP_2.1.0_BCM21654ROW_SystemRel_3.0.5';
+#
+#  #Try these New and Old tag sets
+#  #
+#  #MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1
+#  #MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1
+#  #
+#  #
+#  #MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1
+#  #MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15
+#
+#  # 20130111 Test Case 5:
+#  #  3.2.1
+#  #AP Release Info AP Release Tag in GIT:  MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1
+#  #Until Commit: # f2ea739 in repo_lmp/kernel/linux-hawaii
+#  #Release Documents
+#  #GIT Manifest:  sdb-common-android-jb #
+#  #GIT Mainline Dev Branch:  sdb-common-android-jb
+#  #CP Release Info  CP Release Label in P4:  MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1 (based on CL 460742)
+#  #P4 Release Client-Spec Name:  //spec/client/TEMPLATE_CapriSDB.p4s
+#  #P4 Mainline Dev Branch:  //depot/Sources/SystemDevelopment/Capri/msp/...
+#  #Release Location(s)  IRVINE
+#  #BRACKNELL-UK
+#
+#  #$CQProject   = 'Capri';
+#  #$manifest    = 'sdb-common-android-jb';
+#  #$oldTag      = 'MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1';
+#  #$newTag      = 'MultiPlatform_1.46.1_BCM28155_SystemRel_3.2.1';
+#
+#  # 20130111 Test Case 6
+#  #3.0.15.1
+#  #AP Release Info AP Release Tag in GIT:  MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1
+#  #Until Commit: # e7a7a93 in repo_msp/modem/rhea
+#  #Release Documents
+#  #GIT Manifest:  sdb-common-android-jb #f681be5
+#  #GIT Mainline Dev Branch:  sdb-common-android-jb
+#  #CP Release Info  CP Release Label in P4:  MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1 (based on CL 460217)
+#  #P4 Release Client-Spec Name:  //spec/client/TEMPLATE_CapriSDB.p4s
+#  #P4 Mainline Dev Branch:  //depot/Sources/SystemDevelopment/Capri/msp/...
+#  #Release Location(s)  IRVINE
+#  #BRACKNELL-UK
+#
+#  #$CQProject   = 'Capri';
+#  #$manifest    = 'sdb-common-android-jb';
+#  #$oldTag      = 'MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15';
+#  #$newTag      = 'MultiPlatform_1.45.2_BCM28155_SystemRel_3.0.15.1';
+#
+#  # 20130111 Test Case 7
+#  #  3.0.15
+#  #AP Release Info AP Release Tag in GIT:  MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15
+#  #Until Commit: # aea2191 in repo_aosp/platform/hardware/libhardware
+#  #Release Documents
+#  #GIT Manifest:  sdb-common-android-jb #67144fa
+#  #GIT Mainline Dev Branch:  sdb-common-android-jb
+#  #CP Release Info  CP Release Label in P4:  MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15 (based on CL 459688)
+#  #P4 Release Client-Spec Name:  //spec/client/TEMPLATE_CapriSDB.p4s
+#  #P4 Mainline Dev Branch:  //depot/Sources/SystemDevelopment/Capri/msp/...
+#  #Release Location(s)  IRVINE
+#  #BRACKNELL-UK
+#
+#  #$CQProject   = 'Capri';
+#  #$manifest    = 'sdb-common-android-jb';
+#  #$oldTag      = '';
+#  #$newTag      = 'MultiPlatform_1.45.1_BCM28155_SystemRel_3.0.15';
+#
+#
+#  $AP_CP       = 'APCP';
+#
+#  $output_path = ' ';
+#  $nonExecMode = 1;                      # 0=> update CQdB; 1=> do not update CQdB
+#
+#}
+#else
+#{
+#  $loggerMain->debug( "Running from Electric Commander..." );
+#
+#  # open ec connection; global $EC will contain objectRef
+#  #
+#  $loggerMain->debug( "opening an EC connection..." );
+#
+#  open_ec_connection();
+#
+#  # get information from EC; global $EC will contain objectRef
+#  #
+#  $loggerMain->debug( "getting input from EC..." );
+#
+#  get_info_from_ec();
+#
+#  $loggerMain->debug( Dumper( @INPUT_FIELDS ) );
+#  $loggerMain->debug( Dumper( %INPUT_VALUES ) );
+#
+#  $AP_CP       = trimWhitespace( $INPUT_VALUES{ AP_CP        } );
+#  $CQProject   = trimWhitespace( $INPUT_VALUES{ CQ_PROJECT   } );
+#  $oldTag      = trimWhitespace( $INPUT_VALUES{ OLD_TAG_NAME } );
+#  $newTag      = trimWhitespace( $INPUT_VALUES{ NEW_TAG_NAME } );
+#
+#  $manifest    = trimWhitespace( $INPUT_VALUES{ MANIFEST     } );
+#
+#  $output_path = trimWhitespace( $INPUT_VALUES{ OUTPUT_PATH  } );
+#  $nonExecMode = trimWhitespace( $INPUT_VALUES{ NONEXEC_MODE } ); # for testing; CQdB is not updated if set
+#
+#}
+
+  #4049 INFO $platform   = AP
+  #4050 INFO $reponame   = repo_aosp/platform/packages/apps/Contacts
+  #4051 INFO $commitTime = Wed Jan 2 2013 09:20:11 PM -0800
+  #4052 INFO $component  = SCALAR(0xa1ed0d8)
+  #4053 INFO
+
+  #for my $hashRef( @g_dataArray )
+  #{
+  #  for my $commitKey( keys %$hashRef )
+  #  {
+  #    $platform     = $hashRef->{$commitKey}{platform};
+  #    $reponame     = $hashRef->{$commitKey}{reponame};
+  #    $componentRef = $hashRef->{$commitKey}{component};
+  #    $commitTime   = $hashRef->{$commitKey}{committime};
+  #  }
+  #
+  #  $loggerMain->info( '$platform      = ', $platform );
+  #  $loggerMain->info( '$reponame      = ', $reponame );
+  #  $loggerMain->info( '$commitTime    = ', $commitTime );
+  #  $loggerMain->info( '$componentRef  = ', $componentRef );
+  #  $loggerMain->info( "\n" );
+  #
+  #}
+
+
+  # committed cqIds
+  #
+  #4060 INFO $committedCqIdsRef = {
+  #                     'MobC00271655' => '46f2d759a4fdb1dbec40fee2bd706afee47f8c34',
+  #                     'MobC00271604' => '81686bcfffdae2806af5f6c988eb7d9230bc8e20',
+  #                     'MobC00271649' => 'f1f5e7d84da8bab954f8cfed03835d624bd10908',
+  #                     'MobC00269697' => 'b23b7bd403bedcb476ba5016bd4583e028a125e6',
+  #                     'MobC00271561' => '03285f7e8f029d3294e207d1019c68746db8c7c4'
+  #                   };
+  #
+  #$loggerMain->info( Dumper( $committedCqIdsRef ) );

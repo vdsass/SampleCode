@@ -1,20 +1,13 @@
-#!/usr/brcm/ba/bin/perl
+#!/usr/bin/perl
 use strict;
 use warnings;
 
-use lib "/projects/mobcom_andrwks/users/dsass/clone/Clearquest/lib";
-use lib "/projects/mobcom_andrwks/users/dsass/clone/Clearquest/etc";
-
 use Carp;
+use lib "/projects/Clearquest/lib";
 use Clearquest;
 use Config::General;
-
 use Data::Dumper::Simple;
 
-#use English;
-
-# obfuscated way of allowing given/when; switch is deprecated
-#
 use feature qw( switch );
 use File::Basename;
 use File::Path qw(make_path remove_tree);
@@ -48,26 +41,26 @@ my( $g_projectLeadsFile, $g_projectsStreamsXMLFilePath, $g_path2CategoryTypeXMLF
     $REST_NOT_FOUND, $MAX_RECORD_COUNT
   );
 
-my( $triagedRegex, $mobCRegex, $severityRegex, $buildRegex, $ownerLoginRegex,
+my( $triagedRegex, $mobileDbRegex, $severityRegex, $buildRegex, $ownerLoginRegex,
     $restMessageRegex, $loginRegex, $adminEmailRegex, $javaOptionsRegex
   );
 
 my $debugTrace          = $TRUE;
 my $debugTrace_Level_0  = $FALSE;
 
-Readonly::Scalar my $configFilePath  => $FindBin::Bin . '/../config/cov2CQEscalateConfig.xml';
+Readonly::Scalar my $configFilePath  => $FindBin::Bin . '/../config/cov2CQ.xml';
 
 # read the script's config file
 #   assign paths and other initialization variables
 #
 setGlobalParameters( getConfig( $configFilePath ) );
 
-# read the password file; extract pw for mcsi_user
+# read the password file; extract pw for adminUser
 #                         extract pw for p4
 #
 my $pwHRef = getPwValues( $g_pwConfigFile );
-Readonly::Scalar $g_cimPass    => $pwHRef->{ 'scm-password'      };
-Readonly::Scalar $g_p4Pass     => $pwHRef->{ 'p4server-password' };
+Readonly::Scalar $g_cimPass    => $pwHRef->{ 'scmpw' };
+Readonly::Scalar $g_p4Pass     => $pwHRef->{ 'p4pw'  };
 Readonly::Scalar $g_p4Logincmd => $g_p4ExePath . ' login < ' . $g_p4Pass;
 
 getInputParameters();
@@ -143,7 +136,7 @@ $loggerMain->debug(  Dumper( $path2CategoryTypeHRef ) );
 #
 my @modifiedPaths;
 
-for my $path( keys %{$path2CategoryTypeHRef} )
+for my $path( keys %{ $path2CategoryTypeHRef } )
 {
   chomp $path;
   $path =~ s/cq_project/${cqProject}/x;
@@ -172,21 +165,7 @@ my $covData = $covDataHRef->{ data };
 
 # some lines of the Coverity 'show' response contain data that does not behave...
 #
-# loginName [Broadcom ldap]
-# (const char *),
-# (const char *, char *, int)",
-# (const char *, const android::sp<android::MetaData> &)",
-# (const char *, const android::sp<android::MetaData> &)",
-# (const effect_descriptor_s *, int, unsigned int, int, int)",
-# (const native_handle **),
-# (const hw_module_t *, const char *, hw_device_t **)",
-# (const android::sp<android::DataSource> &, const char *)",
-# (const char *, char *, int)",
-# (const effect_descriptor_s *, int, unsigned int, int, int)",
-# (const native_handle **),
-# (const hw_module_t *, const char *, hw_device_t **)",
-#
-$covData =~ s{\s\[Broadcom\sldap\]}{}gmx; # remove ldap string (seen on ems server)
+$covData =~ s{\s\[Vendor1\sldap\]}{}gmx; # remove ldap string (seen on ems server)
 $covData =~ s{\(.*\)}{}gmx;               # remove function arguments
 
 my @covData = split m{\n}x, $covData;
@@ -264,21 +243,16 @@ DATALOOP: for my $line( @covData )
     next DATALOOP;
   }
 
-  # during development/test the CQ dB t_sbx was used to create CQ records
-  #   Coverity records were updated with the CQId from t_sbx
-  #     Moving to production t_sbx entries will be overwritten with MobC id's
-  #
-
   my $externalRef = $covHashRef->{ $covID }{ 'ext-ref' };
 
-  if( $externalRef =~ $mobCRegex )
+  if( $externalRef =~ $mobileDbRegex )
   {
     ++$mobCExtRef;
     $loggerMain->info( 'REJECTED: $externalRef = ', $externalRef );
     next DATALOOP;
   }
 
-  #   when $critical input parameter is set,
+  #   when $critical argument is set,
   #     skip records whose defect record checker severity is not Major or Moderate
   #
   my $covSeverity = $covHashRef->{ $covID }{ covseverity };
@@ -312,20 +286,12 @@ DATALOOP: for my $line( @covData )
   my $status         = $covHashRef->{ $covID }{ status         };
   my $stream_name    = $covHashRef->{ $covID }{ 'stream-name'  };
 
-  # file path components:
-  #      0         1                     2                                        3               4       5      6     7     8    9        10        11 12            13
-  # /projects/mps_coverity/MP_2.6.0_BCM21664Android_SystemRel_2.1.6/android_hawaii_edn010_java/vendor/broadcom/modem/hawaii/msp/modem/cellularstack/as/uas/urrcdc_build_peer_msg_func.c
-  # ^^^^^^^^^^^^^^^^^^^^^^
-  #        /build/          <<< when run on bsub queue
-  # isolate 'component' name
-  #
   my @fileComponents = split m{/}x, $fullFilePath;
 
   $loggerMain->debug( Dumper( @fileComponents ) );
 
-  my $temp           = shift @fileComponents; # /
-     $temp           = shift @fileComponents; # projects
-                       # remove 'mps_coverity' ( when testing stand-alone )
+  my $temp           = shift @fileComponents;
+     $temp           = shift @fileComponents;
      $temp           = shift @fileComponents unless( $fullFilePath =~ $buildRegex ) ;
 
   my $manifestBranch = shift @fileComponents;
@@ -522,13 +488,13 @@ sub updateCQAndCoverity
   my $cqID = $getDBIDResult{ id };
   $loggerMain->info ( '$cqID          = ', $cqID );
 
-# http://mpsscm-coverity.broadcom.com:8080/sourcebrowser.htm?projectId=10002#mergedDefectId=10191
+# http://mpsscm-coverity.vendor1.com:8080/sourcebrowser.htm?projectId=10002#mergedDefectId=10191
 
   my $description = << "__EOF__";
 Issue Description: A Coverity defect was discovered.
     Steps to Reproduce:
       1. Coverity scan performed by SCM.
-      2. Details at http://mpsscm-coverity.broadcom.com:8080/sourcebrowser.htm?projectId=${covPid}#mergedDefectId=${p_covID}
+      2. Details at http://mpsscm-coverity.vendor1.com:8080/sourcebrowser.htm?projectId=${covPid}#mergedDefectId=${p_covID}
 \n
       Frequency of Problem: Always
 \n
@@ -538,7 +504,7 @@ Issue Description: A Coverity defect was discovered.
         Component path\t: ${p_componentPath}
         Component\t: ${p_componentName}
         Function\t: ${p_function}
-        Read about triaging a Coverity defect: http://confluence.broadcom.com/display/MWGMPSSCM/How+To+Triage+A+Coverity+Defect
+        Read about triaging a Coverity defect: http://confluence.vendor1.com/display/MWGMPSSCM/How+To+Triage+A+Coverity+Defect
 __EOF__
 
   # when performing an update, repeat all fields (i.e., re-write) that are currently set in the record
@@ -558,7 +524,7 @@ __EOF__
                 Submitter         => 'AdminAutoSubmit',
                 Entry_Type        => 'Defect',
                 Verifier          => 'AdminAutoSubmit',
-                Visibility        => 'Broadcom only',
+                Visibility        => 'vendor1 only',
                 CM_Log            => 'Changed state to assigned',
                 Approved_by_CCB   => $p_cqApproved,
                 Description       => $description,
@@ -793,12 +759,12 @@ sub setGlobalParameters
   Readonly::Scalar $MAX_RECORD_COUNT               => $hRef->{ maxrecordcount    };# for testing
 
   Readonly::Scalar $triagedRegex                   => qr{Triaged}x;
-  Readonly::Scalar $mobCRegex                      => qr{MobC}x;
+  Readonly::Scalar $mobileDbRegex                  => qr{Mobile}x;
   Readonly::Scalar $severityRegex                  => qr{Major|Moderate}x;
   Readonly::Scalar $buildRegex                     => qr{build}x;
   Readonly::Scalar $ownerLoginRegex                => qr{^(.+?)@(.+?)$}ix;
   Readonly::Scalar $restMessageRegex               => qr{Resource\snot\sfound}x;
-  Readonly::Scalar $loginRegex                     => qr{pgaurav|mcsi_user}ix;
+  Readonly::Scalar $loginRegex                     => qr{palladium|adminUser}ix;
   Readonly::Scalar $adminEmailRegex                => qr{^(.+?)@}x;
   Readonly::Scalar $javaOptionsRegex               => qr{^Picked\sup\s_JAVA_OPTIONS:}x;
 
@@ -883,7 +849,7 @@ sub getConfig
   my $doc;
   my $parser = XML::LibXML->new();
 
-  # the eval logic courtesy of:
+  # eval logic courtesy of:
   #   Perl::Critic::Policy::ErrorHandling::RequireCheckingReturnValueOfEval
   #
   if( eval{ $doc = $parser->parse_file( $xmlFilePath ); 1 } )
@@ -1042,7 +1008,7 @@ sub validateAssignee
   $logger->debug( '$login : ', $login);
 
   # 'LIKE' is NOT SUPPORTED BY REST...
-  #    Andrew deFaria: "As for like, you'll probably need to do something like
+  #    AD: "As for like, you'll probably need to do something like
   #    "<fieldname> like '%var%'" for the condition."
   #
   my( $validatedEmail, $validatedFullName, $validatedLoginName, $compositName );
@@ -1275,7 +1241,7 @@ sub updateCov
 
   local $| = 1;
 
-  $p_assignee = 'mcsi_user' if( $p_assignee eq 'admin' );
+  $p_assignee = 'adminUser' if( $p_assignee eq 'admin' );
 
   my $cmdString = <<"_EOT_";
 $g_cimPath
@@ -1617,16 +1583,16 @@ EXAMPLES:
 The following are crontab command line entries that have been used to test the script and execute it for production:
 
 # logonly - no db access
-# 45 15 25 3 * rsh xserver.sj.broadcom.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/mcsi_user/logs/cov2CQ_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-sdb-common-android-jb-4.2.2 -covstream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10009 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test -logonly'"
-# 20 14 27 3 * rsh xserver.sj.broadcom.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/mcsi_user/logs/cov2CQ_JAVA_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-JAVA-sdb-common-android-jb-4.2.2 -covstream AP-JAVA-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10010 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test -logonly'"
+# 45 15 25 3 * rsh xserver.sj.vendor1.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/adminUser/logs/cov2CQ_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-sdb-common-android-jb-4.2.2 -covstream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10009 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test -logonly'"
+# 20 14 27 3 * rsh xserver.sj.vendor1.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/adminUser/logs/cov2CQ_JAVA_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-JAVA-sdb-common-android-jb-4.2.2 -covstream AP-JAVA-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10010 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test -logonly'"
 
 # test - use t_sbx and limit number of records processed
-# 45 15 25 3 * rsh xserver.sj.broadcom.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/mcsi_user/logs/cov2CQ_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-sdb-common-android-jb-4.2.2 -covstream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10009 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test'"
-# 25 15 26 3 * rsh xserver.sj.broadcom.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/mcsi_user/logs/cov2CQ_JAVA_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-JAVA-sdb-common-android-jb-4.2.2 -covstream AP-JAVA-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10010 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test'"
+# 45 15 25 3 * rsh xserver.sj.vendor1.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/adminUser/logs/cov2CQ_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-sdb-common-android-jb-4.2.2 -covstream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10009 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test'"
+# 25 15 26 3 * rsh xserver.sj.vendor1.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/adminUser/logs/cov2CQ_JAVA_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/test/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-JAVA-sdb-common-android-jb-4.2.2 -covstream AP-JAVA-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10010 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel DEBUG -cqdatabase t_sbx -test'"
 
 # production - use MobC and no record limit
-# 35 23 * * * rsh xserver.sj.broadcom.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/mcsi_user/logs/cov2CQ_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/cq_bridge/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-sdb-common-android-jb-4.2.2 -covstream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10009 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel INFO -cqdatabase MobC'"
-# 30 23 * * * rsh xserver.sj.broadcom.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/mcsi_user/logs/cov2CQ_JAVA_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/cq_bridge/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-JAVA-sdb-common-android-jb-4.2.2 -covstream AP-JAVA-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10010 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel INFO -cqdatabase MobC'"
+# 35 23 * * * rsh xserver.sj.vendor1.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/adminUser/logs/cov2CQ_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/cq_bridge/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-sdb-common-android-jb-4.2.2 -covstream AP-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10009 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel INFO -cqdatabase MobC'"
+# 30 23 * * * rsh xserver.sj.vendor1.com "/tools/bin/bsub -o '/projects/mobcom_andrwks_ext7_scratch/users/adminUser/logs/cov2CQ_JAVA_bsub.log' -q sj-mob-android '/projects/mob_tools/coverity/cq_bridge/cov2CQEscalate.pl -customer Samsung -covhost mpsscm-coverity -covproject AP-JAVA-sdb-common-android-jb-4.2.2 -covstream AP-JAVA-sdb-common-android-jb-4.2.2-android_hawaii_edn010 -covpid 10010 -covstatus Triaged -covclass Bug -cqproject Hawaii -cqplatform HawaiiStone -critical -loglevel INFO -cqdatabase MobC'"
 
 
 =head1 DIAGNOSTICS
@@ -1695,20 +1661,20 @@ cov2CQEscalate.pl is intended to run in a Linux environment.
 =head1 SEE ALSO
 
  Coverity Project ID's are found on the Coverity Connect Quality Advisor page
-         http://mpsscm-coverity.broadcom.com:8080/reports.htm#dQUALITY/p10002
+         http://mpsscm-coverity.vendor1.com:8080/reports.htm#dQUALITY/p10002
  Select Projects pull-down and select Project Name for the url   >>>>>  ^^^^^
    NOTE: ID is only the numeric part
 
 
 =head1 AUTHOR
 
-Dennis Sass, E<lt>dsass@broadcom.com<gt>
+Dennis Sass, E<lt>dsass@vendor1.com<gt>
 
 =head1 BUGS AND LIMITATIONS
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2013 by Broadcom, Inc.
+Copyright (C) 2013 by vendor1, Inc.
 
 <License TBD>
 
