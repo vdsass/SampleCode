@@ -1,0 +1,41 @@
+{include:Tabs}
+h2. Report from [% project %]
+|| Date  || {color:#ff9900}Critical{color} || || || {color:#0000ff}Major{color} || || || {color:#ff00ff}Minor{color} || || || {color:#ff00ff}AP-c{color} | {color:#ff00ff}CP-c{color} | {color:#ff00ff}AP-Java{color} |{color:#ff00ff}AP-c{color} | {color:#ff00ff}CP-c{color} | {color:#ff00ff}AP-Java{color} |{color:#ff00ff}AP-c{color} | {color:#ff00ff}CP-c{color} | {color:#ff00ff}AP-Java{color} | DATE
+
+[% FOREACH colordate = colordates -%]
+ | [% colordate.DATE -%]
+[% END -%]
+
+| Critical
+[% FOREACH colordate = colordates -%]
+ | [% colordate.CRITICAL_AP_C %] | | [% colordate.CRITICAL_CP_C %] | | [% colordate.CRITICAL_AP_J -%]
+[% END -%]
+
+| Major
+[% FOREACH colordate = colordates -%]
+ | [% colordate.MAJOR_AP_C %] | | [% colordate.MAJOR_CP_C %] | | [% colordate.MAJOR_AP_J -%]
+[% END -%]
+
+| Minor
+[% FOREACH colordate = colordates -%]
+ | [% colordate.MINOR_AP_C %] | | [% colordate.MINOR_CP_C %] | | [% colordate.MINOR_AP_J -%]
+[% END %]
+
+\++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Trend Critical/Major Defects
+
+{chart:type=line|xLabel=Date|yLabel=Count of Defects}
+|DATE[% FOREACH date = dates -%]
+|[% date.DATE -%]
+[% END %]
+|Critical[% FOREACH date = dates -%]
+|[% date.CRITICAL_AP_C -%]|[% date.CRITICAL_AP_J -%]
+[% END %]
+|Major[% FOREACH date = dates -%]
+|[% date.MAJOR_AP_C -%]|[% date.MAJOR_AP_J -%]
+[% END %]
+{chart}
+
+\++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+

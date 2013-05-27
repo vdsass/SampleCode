@@ -1,0 +1,441 @@
+<!doctype html>
+<html>
+  <head>
+
+  <!--
+  Chart.js used under: The MIT License (MIT)
+  -->
+
+    <title>
+      SW DEFECT METRICS for Project:Ganymede    </title>
+
+    <meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
+
+    <script src="../js/Chart.js"></script>
+
+    <script type="text/javascript">
+		function drawThresholdLegend(options)
+		{
+		  // Set the starting x and y values
+
+		  var x        = options.x;
+		  var y        = options.y;
+                  var canvasId = options.canvasId;
+		  var colorAbove   = options.colorAbove;
+		  var colorBelow   = options.colorBelow;
+		  var colorEqual   = options.colorEqual;
+
+		  // Get the area for the canvas and the 2D context
+		  // Draw 2 rectangles each with label
+
+		  var ctx = document.getElementById(canvasId).getContext("2d");
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "LEGEND:", x+45, y+23 );
+
+                  ctx.fillStyle = colorAbove;
+                  ctx.fillRect( x+110, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( ">", x+140, y+23 );
+
+                  ctx.fillStyle = colorEqual;
+                  ctx.fillRect( x+175, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "==", x+205, y+23 );
+
+                  ctx.fillStyle = colorBelow;
+                  ctx.fillRect( x+240, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "<", x+270, y+23 );
+
+		}
+
+		function drawLegend(options)
+		{
+		  // Set the starting x and y values
+
+		  var x        = options.x;
+		  var y        = options.y;
+                  var canvasId = options.canvasId;
+		  var colorC   = options.colorC;
+		  var colorM   = options.colorM;
+		  var colorJ   = options.colorJ;
+
+		  // Get the area for the canvas and the 2D context
+		  // Draw 2 rectangles each with label
+
+		  var ctx = document.getElementById(canvasId).getContext("2d");
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "LEGEND:", x+45, y+23 );
+
+                  ctx.fillStyle = colorC;
+                  ctx.fillRect( x+110, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "GPP C++", x+140, y+23 );
+
+                  ctx.fillStyle = colorM;
+                  ctx.fillRect( x+200, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "Modem C++", x+230, y+23 );
+
+                  ctx.fillStyle = colorJ;
+                  ctx.fillRect( x+305, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "GPP JAVA", x+335, y+23 );
+
+		}
+
+    </script>
+
+    <style>
+
+      h2        {
+                  text-align:center;
+                }
+      .headline {
+                  text-align:center;
+                  font-weight:bold;
+                  font-size:40px;
+                }
+      .heading  {
+                  text-align:center;
+                  font-weight:bold;
+                }
+      .data     {
+                  text-align:center;
+                }
+
+   </style>
+
+  </head>
+
+  <body>
+
+    <h1 class="headline">Project:&nbsp;Ganymede</h1>
+    <h1 class="headline">SW DEFECT MEASURES</h1>
+
+    <table border=1; width="100%">
+      <tr>
+        <td>&nbsp;</td>
+        <td colspan=3; class="heading">CRITICAL</td>
+        <td colspan=3; class="heading">MAJOR</td>
+        <td colspan=3; class="heading">MINOR</td>
+      </tr>
+      <tr>
+      <td class="heading">Date</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td></tr>
+
+              <tr>
+          <td class="data">5/1/2013</td>
+          <td class="data"><font color="green">16</font>&nbsp;</td> <td class="data"><font color="red">92</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="red">68</font>&nbsp;</td> <td class="data"><font color="red">79</font>&nbsp;</td> <td class="data"><font color="green">20</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">164</font>&nbsp;</td> <td class="data"><font color="green">112</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/2/2013</td>
+          <td class="data"><font color="green">17</font>&nbsp;</td> <td class="data"><font color="red">96</font>&nbsp;</td> <td class="data"><font color="green">10</font>&nbsp;</td>
+          <td class="data"><font color="red">69</font>&nbsp;</td> <td class="data"><font color="red">79</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="red">237</font>&nbsp;</td> <td class="data"><font color="green">165</font>&nbsp;</td> <td class="data"><font color="green">113</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/3/2013</td>
+          <td class="data"><font color="green">11</font>&nbsp;</td> <td class="data"><font color="red">96</font>&nbsp;</td> <td class="data"><font color="green">9</font>&nbsp;</td>
+          <td class="data"><font color="red">68</font>&nbsp;</td> <td class="data"><font color="red">79</font>&nbsp;</td> <td class="data"><font color="green">22</font>&nbsp;</td>
+          <td class="data"><font color="red">238</font>&nbsp;</td> <td class="data"><font color="green">165</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/4/2013</td>
+          <td class="data"><font color="green">11</font>&nbsp;</td> <td class="data"><font color="red">96</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="red">68</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">22</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/5/2013</td>
+          <td class="data"><font color="green">11</font>&nbsp;</td> <td class="data"><font color="red">96</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="red">68</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">22</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/6/2013</td>
+          <td class="data"><font color="green">24</font>&nbsp;</td> <td class="data"><font color="red">95</font>&nbsp;</td> <td class="data"><font color="green">15</font>&nbsp;</td>
+          <td class="data"><font color="red">68</font>&nbsp;</td> <td class="data"><font color="red">82</font>&nbsp;</td> <td class="data"><font color="green">25</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">160</font>&nbsp;</td> <td class="data"><font color="green">116</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/7/2013</td>
+          <td class="data"><font color="red">30</font>&nbsp;</td> <td class="data"><font color="red">94</font>&nbsp;</td> <td class="data"><font color="green">17</font>&nbsp;</td>
+          <td class="data"><font color="red">71</font>&nbsp;</td> <td class="data"><font color="red">79</font>&nbsp;</td> <td class="data"><font color="green">27</font>&nbsp;</td>
+          <td class="data"><font color="red">234</font>&nbsp;</td> <td class="data"><font color="green">163</font>&nbsp;</td> <td class="data"><font color="green">114</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/8/2013</td>
+          <td class="data"><font color="red">30</font>&nbsp;</td> <td class="data"><font color="red">90</font>&nbsp;</td> <td class="data"><font color="green">12</font>&nbsp;</td>
+          <td class="data"><font color="red">73</font>&nbsp;</td> <td class="data"><font color="red">76</font>&nbsp;</td> <td class="data"><font color="green">24</font>&nbsp;</td>
+          <td class="data"><font color="black">230</font>&nbsp;</td> <td class="data"><font color="green">163</font>&nbsp;</td> <td class="data"><font color="green">116</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/9/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">95</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="red">75</font>&nbsp;</td> <td class="data"><font color="black">75</font>&nbsp;</td> <td class="data"><font color="green">28</font>&nbsp;</td>
+          <td class="data"><font color="red">238</font>&nbsp;</td> <td class="data"><font color="green">164</font>&nbsp;</td> <td class="data"><font color="green">112</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/10/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">92</font>&nbsp;</td> <td class="data"><font color="green">12</font>&nbsp;</td>
+          <td class="data"><font color="red">74</font>&nbsp;</td> <td class="data"><font color="black">75</font>&nbsp;</td> <td class="data"><font color="green">30</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">164</font>&nbsp;</td> <td class="data"><font color="green">112</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/11/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">92</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="red">74</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">30</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/12/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">92</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="red">74</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">30</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/13/2013</td>
+          <td class="data"><font color="red">37</font>&nbsp;</td> <td class="data"><font color="red">90</font>&nbsp;</td> <td class="data"><font color="green">15</font>&nbsp;</td>
+          <td class="data"><font color="red">77</font>&nbsp;</td> <td class="data"><font color="red">82</font>&nbsp;</td> <td class="data"><font color="green">30</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">160</font>&nbsp;</td> <td class="data"><font color="green">116</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/14/2013</td>
+          <td class="data"><font color="red">37</font>&nbsp;</td> <td class="data"><font color="red">88</font>&nbsp;</td> <td class="data"><font color="green">17</font>&nbsp;</td>
+          <td class="data"><font color="red">70</font>&nbsp;</td> <td class="data"><font color="red">79</font>&nbsp;</td> <td class="data"><font color="black">35</font>&nbsp;</td>
+          <td class="data"><font color="red">234</font>&nbsp;</td> <td class="data"><font color="green">163</font>&nbsp;</td> <td class="data"><font color="green">114</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/15/2013</td>
+          <td class="data"><font color="red">36</font>&nbsp;</td> <td class="data"><font color="red">89</font>&nbsp;</td> <td class="data"><font color="green">12</font>&nbsp;</td>
+          <td class="data"><font color="red">68</font>&nbsp;</td> <td class="data"><font color="red">76</font>&nbsp;</td> <td class="data"><font color="red">37</font>&nbsp;</td>
+          <td class="data"><font color="black">230</font>&nbsp;</td> <td class="data"><font color="green">163</font>&nbsp;</td> <td class="data"><font color="green">116</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/16/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">87</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="black">60</font>&nbsp;</td> <td class="data"><font color="black">75</font>&nbsp;</td> <td class="data"><font color="red">36</font>&nbsp;</td>
+          <td class="data"><font color="red">238</font>&nbsp;</td> <td class="data"><font color="green">164</font>&nbsp;</td> <td class="data"><font color="green">112</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/17/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">85</font>&nbsp;</td> <td class="data"><font color="green">12</font>&nbsp;</td>
+          <td class="data"><font color="black">60</font>&nbsp;</td> <td class="data"><font color="black">75</font>&nbsp;</td> <td class="data"><font color="black">35</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">164</font>&nbsp;</td> <td class="data"><font color="green">112</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/18/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">85</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="black">60</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="black">35</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/19/2013</td>
+          <td class="data"><font color="red">35</font>&nbsp;</td> <td class="data"><font color="red">85</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="black">60</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="black">35</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/20/2013</td>
+          <td class="data"><font color="red">36</font>&nbsp;</td> <td class="data"><font color="red">83</font>&nbsp;</td> <td class="data"><font color="green">15</font>&nbsp;</td>
+          <td class="data"><font color="black">60</font>&nbsp;</td> <td class="data"><font color="red">82</font>&nbsp;</td> <td class="data"><font color="red">40</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">160</font>&nbsp;</td> <td class="data"><font color="green">116</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/21/2013</td>
+          <td class="data"><font color="red">34</font>&nbsp;</td> <td class="data"><font color="red">82</font>&nbsp;</td> <td class="data"><font color="green">17</font>&nbsp;</td>
+          <td class="data"><font color="green">59</font>&nbsp;</td> <td class="data"><font color="red">79</font>&nbsp;</td> <td class="data"><font color="red">38</font>&nbsp;</td>
+          <td class="data"><font color="red">234</font>&nbsp;</td> <td class="data"><font color="green">163</font>&nbsp;</td> <td class="data"><font color="green">114</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/22/2013</td>
+          <td class="data"><font color="green">23</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">12</font>&nbsp;</td>
+          <td class="data"><font color="green">55</font>&nbsp;</td> <td class="data"><font color="red">76</font>&nbsp;</td> <td class="data"><font color="red">37</font>&nbsp;</td>
+          <td class="data"><font color="black">230</font>&nbsp;</td> <td class="data"><font color="green">163</font>&nbsp;</td> <td class="data"><font color="green">116</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/23/2013</td>
+          <td class="data"><font color="red">30</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="green">50</font>&nbsp;</td> <td class="data"><font color="black">75</font>&nbsp;</td> <td class="data"><font color="red">36</font>&nbsp;</td>
+          <td class="data"><font color="red">238</font>&nbsp;</td> <td class="data"><font color="green">164</font>&nbsp;</td> <td class="data"><font color="green">112</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/24/2013</td>
+          <td class="data"><font color="black">25</font>&nbsp;</td> <td class="data"><font color="red">75</font>&nbsp;</td> <td class="data"><font color="green">12</font>&nbsp;</td>
+          <td class="data"><font color="green">50</font>&nbsp;</td> <td class="data"><font color="black">75</font>&nbsp;</td> <td class="data"><font color="green">30</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">164</font>&nbsp;</td> <td class="data"><font color="green">112</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/25/2013</td>
+          <td class="data"><font color="black">25</font>&nbsp;</td> <td class="data"><font color="red">75</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="green">50</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">30</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>        <tr>
+          <td class="data">5/26/2013</td>
+          <td class="data"><font color="black">25</font>&nbsp;</td> <td class="data"><font color="red">75</font>&nbsp;</td> <td class="data"><font color="green">11</font>&nbsp;</td>
+          <td class="data"><font color="green">50</font>&nbsp;</td> <td class="data"><font color="red">80</font>&nbsp;</td> <td class="data"><font color="green">30</font>&nbsp;</td>
+          <td class="data"><font color="red">235</font>&nbsp;</td> <td class="data"><font color="green">169</font>&nbsp;</td> <td class="data"><font color="green">117</font>&nbsp;</td>
+        </tr>    </table>
+
+    <div id="thresholds" style="width:100%; height:10%;">
+      <canvas id="thresholdLegend" height="100" width="600"></canvas>
+    </div>
+
+    <script type="text/javascript">
+
+      var belowThresholdLegendColor = "rgba(0,255,0,1)";     // green
+      var equalThresholdLegendColor = "rgba(0,0,0,1)";       // black
+      var aboveThresholdLegendColor = "rgba(255,0,0,1)";     // red
+
+      window.onload = drawThresholdLegend( {
+                                              x: -10,
+                                              y: 0,
+                                              colorAbove: aboveThresholdLegendColor,
+                                              colorEqual: equalThresholdLegendColor,
+                                              colorBelow: belowThresholdLegendColor,
+                                              canvasId: "thresholdLegend"
+                                            }
+                                          );
+
+    </script>
+
+
+    <hr>
+
+    <h2>GPP & MODEM CRITICAL DEFECTS SOLUTION RATE</h2>
+
+    <canvas id="canvasCritical" height="300" width="600"></canvas>
+
+    <script>
+
+      var GPPCPPCriticalStrokeColor    = "rgba(255,0,0,1)";
+      var GPPCPPCriticalPointColor     = "rgba(255,0,0,1)";
+      var MODEMCPPCriticalStrokeColor  = "rgba(0,0,0,1)";
+      var MODEMCPPCriticalPointColor   = "rgba(0,0,0,1)";
+      var GPPJAVACriticalStrokeColor   = "rgba(0,0,255,1)";
+      var GPPJAVACriticalPointColor    = "rgba(0,0,255,1)";
+
+      var lineChartCritical = {
+                                labels:["5/1/2013","5/2/2013","5/3/2013","5/4/2013","5/5/2013","5/6/2013","5/7/2013","5/8/2013","5/9/2013","5/10/2013","5/11/2013","5/12/2013","5/13/2013","5/14/2013","5/15/2013","5/16/2013","5/17/2013","5/18/2013","5/19/2013","5/20/2013","5/21/2013","5/22/2013","5/23/2013","5/24/2013","5/25/2013","5/26/2013"],
+                                datasets :  [
+                                              {
+                                                fillColor        : "rgba(255,255,204,0.2)",
+                                                strokeColor      : GPPCPPCriticalStrokeColor,
+                                                pointColor       : GPPCPPCriticalPointColor,
+                                                pointStrokeColor : "#fff",
+                                                data:[16,17,11,11,11,24,30,30,35,35,35,35,37,37,36,35,35,35,35,36,34,23,30,25,25,25]
+                                              },
+                                              {
+                                                fillColor        : "rgba(255,255,204,0.2)",
+                                                strokeColor      : MODEMCPPCriticalStrokeColor,
+                                                pointColor       : MODEMCPPCriticalPointColor,
+                                                pointStrokeColor : "#fff",
+                                                data:[92,96,96,96,96,95,94,90,95,92,92,92,90,88,89,87,85,85,85,83,82,80,80,75,75,75]
+                                              },
+                                              {
+                                                fillColor        : "rgba(255,255,204,0.2)",
+                                                strokeColor      : GPPJAVACriticalStrokeColor,
+                                                pointColor       : GPPJAVACriticalPointColor,
+                                                pointStrokeColor : "#fff",
+                                                data:[11,10,9,11,11,15,17,12,11,12,11,11,15,17,12,11,12,11,11,15,17,12,11,12,11,11]
+                                              }
+                                            ]
+                              }
+
+      var myLine = new Chart(document.getElementById("canvasCritical").getContext("2d")).Line(lineChartCritical);
+
+    </script>
+
+    <div id="legend1" style="width:100%; height:10%;">
+      <canvas id="criticalLegend" height="100" width="600"></canvas>
+    </div>
+
+    <script type="text/javascript">
+
+      var GPPCPPCriticalLegendColor   = "rgba(255,0,0,1)";
+      var MODEMCPPCriticalLegendColor = "rgba(0,0,0,1)";
+      var GPPJAVACriticalLegendColor  = "rgba(0,0,255,1)";
+
+      window.onload = drawLegend( {
+                                    x: -5,
+				    y: 0,
+				    colorC: GPPCPPCriticalLegendColor,
+				    colorM: MODEMCPPCriticalLegendColor,
+				    colorJ: GPPJAVACriticalLegendColor,
+				    canvasId: "criticalLegend"
+                                  }
+				);
+
+    </script>
+
+    <hr>
+
+    <h2>GPP & MODEM MAJOR DEFECTS SOLUTION RATE</h2>
+
+    <canvas id="canvasMajor" height="300" width="600"></canvas>
+
+    <script>
+
+      var GPPCPPMajorStrokeColor    = "rgba(0,255,0,1)";
+      var GPPCPPMajorPointColor     = "rgba(0,255,0,1)";
+      var MODEMCPPMajorStrokeColor  = "rgba(100,100,0,1)";
+      var MODEMCPPMajorPointColor   = "rgba(100,100,0,1)";
+      var GPPJAVAMajorStrokeColor   = "rgba(225,100,25,1)";
+      var GPPJAVAMajorPointColor    = "rgba(225,100,25,1)";
+
+      var lineChartMajor = {
+                            labels:["5/1/2013","5/2/2013","5/3/2013","5/4/2013","5/5/2013","5/6/2013","5/7/2013","5/8/2013","5/9/2013","5/10/2013","5/11/2013","5/12/2013","5/13/2013","5/14/2013","5/15/2013","5/16/2013","5/17/2013","5/18/2013","5/19/2013","5/20/2013","5/21/2013","5/22/2013","5/23/2013","5/24/2013","5/25/2013","5/26/2013"],
+                            datasets :  [
+                                          {
+                                            fillColor        : "rgba(255,255,204,0.2)",
+                                            strokeColor      : GPPCPPMajorStrokeColor,
+                                            pointColor       : GPPCPPMajorPointColor,
+                                            pointStrokeColor : "#fff",
+                                            data:[68,69,68,68,68,68,71,73,75,74,74,74,77,70,68,60,60,60,60,60,59,55,50,50,50,50]
+                                          },
+					  {
+					    fillColor        : "rgba(255,255,204,0.2)",
+					    strokeColor      : MODEMCPPMajorStrokeColor,
+					    pointColor       : MODEMCPPMajorPointColor,
+					    pointStrokeColor : "#fff",
+					    data:[79,79,79,80,80,82,79,76,75,75,80,80,82,79,76,75,75,80,80,82,79,76,75,75,80,80]
+                                          },
+                                          {
+                                            fillColor        : "rgba(255,255,204,0.2)",
+                                            strokeColor      : GPPJAVAMajorStrokeColor,
+                                            pointColor       : GPPJAVAMajorPointColor,
+                                            pointStrokeColor : "#fff",
+                                            data:[20,11,22,22,22,25,27,24,28,30,30,30,30,35,37,36,35,35,35,40,38,37,36,30,30,30]
+                                          }
+                                        ]
+                          }
+
+      var myLine = new Chart(document.getElementById("canvasMajor").getContext("2d")).Line(lineChartMajor);
+
+    </script>
+
+    <div id="legend2" style="width:100%; height:10%;">
+      <canvas id="majorLegend" height="100" width="600"></canvas>
+    </div>
+
+
+    <script type="text/javascript">
+
+      var GPPCPPMajorLegendColor   = "rgba(0,255,0,1)";
+      var MODEMCPPMajorLegendColor = "rgba(100,100,0,1)";
+      var GPPJAVAMajorLegendColor  = "rgba(225,100,25,1)";
+
+      window.onload = drawLegend( {
+                                    x: -5,
+				    y: 0,
+				    colorC: GPPCPPMajorLegendColor,
+				    colorM: MODEMCPPMajorLegendColor,
+				    colorJ: GPPJAVAMajorLegendColor,
+				    canvasId: "majorLegend"
+                                  }
+				);
+
+    </script>
+
+    <div id="footer">
+      <div id="copyright">
+        &copy; 2013 swdeveloperatcoxdotnet
+      </div>
+    </div>
+
+  </body>
+</html>
